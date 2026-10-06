@@ -14,7 +14,7 @@ Articula la gestión de salón en vivo, captura móvil de comandas, monitoreo de
 * **Control de Inventario y Carta:** Gestión de productos, categorías y alertas automáticas por bajo stock.
 ---
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 * **Base de Datos:** MySQL (motor InnoDB, integridad referencial 3FN)
 * **Backend:** 
