@@ -141,6 +141,22 @@ CONSTRAINT `fk_cierre_usuario` FOREIGN KEY (`usuario_id`)
 REFERENCES `usuario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+CREATE TABLE reserva (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mesa_id INT NOT NULL,
+    nombre_cliente VARCHAR(120) NOT NULL,
+    telefono VARCHAR(25) NOT NULL,
+    cantidad_personas INT NOT NULL DEFAULT 2,
+    fecha_reserva DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NULL,
+    estado ENUM('confirmada', 'en_mesa', 'finalizada', 'cancelada') DEFAULT 'confirmada',
+    observaciones VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `fk_reserva_mesa` FOREIGN KEY (`mesa_id`) 
+        REFERENCES `mesa` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 INSERT INTO `rol` (`id`, `nombre`, `descripcion`) VALUES
 (1, 'Administrador', 'Control total de inventario, finanzas y usuarios'),
 (2, 'Mesero', 'Atención en salón, toma de pedidos y precuenta'),
