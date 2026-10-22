@@ -7,7 +7,7 @@
             "caja","miPerfil","notiMesero","mesas",
             "registrarGasto","cerrarCaja","historialPedido",
             "notiCocinero","estadisticas","carta","inventario",
-            "usuarios","nuevaReserva"];
+            "usuarios","nuevaReserva","nuevoPlato","editarPlato"];
 
             if (in_array($vista,$listaBlanca)) {
                 if (is_file("./app/views/content/".$vista."-view.php")) {

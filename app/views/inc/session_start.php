@@ -1,4 +1,5 @@
 <?php
-session_name(APP_SESSION_NAME);
-session_start();
-?>
+    session_name(APP_SESSION_NAME);
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }

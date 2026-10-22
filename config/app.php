@@ -2,7 +2,7 @@
 
 const APP_URL="http://localhost/gastrosoft/";
 const APP_NAME="GastroSoft";
-const APP_SESSION_NAME="POS";
+const APP_SESSION_NAME="GASTROSOFT_SESSION";
 
 const DOCUMENTOS_USUARIO=["Cedula","Otro"];
 const PRODUCTOS_UNIDAD=["Unidad", "Kilogramo", "Caja", "Paquete", "Galon", "Botella", "Lata"];

@@ -1,17 +1,37 @@
-<!--app/views/inc/navbar.php-->
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_name(APP_SESSION_NAME);
     session_start();
 }
 
-if (!isset($_SESSION['id'])) {
-    header("Location: APP_URL.'login/''; ");
+// 1. Proceso de Cierre de Sesión
+if (isset($_GET['cerrar_sesion'])) {
+    $_SESSION = [];
+
+    // Borrar la cookie de sesión del navegador
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(
+            session_name(),
+            '',
+            time() - 42000,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
+    }
+
+    session_destroy();
+
+    // Redireccionar al login
+    echo "<script>window.location.href = '" . APP_URL . "login';</script>";
     exit();
 }
-if (isset($_GET['cerrar_sesion'])) {
-    session_unset();
-    session_destroy();
-    echo "<script>window.location.href = '" . APP_URL . "login/';</script>";
+
+// 2. Comprobar que exista usuario autenticado
+if (!isset($_SESSION['id_usuario'])) {
+    header("Location: " . APP_URL . "login");
     exit();
 }
 ?>
@@ -25,7 +45,7 @@ if (isset($_GET['cerrar_sesion'])) {
 
     <!-- Usuario y Menú Desplegable -->
     <div class="relative">
-        <button id="user-menu-btn" class="flex items-center ring-2 ring-transparent hover:ring-brandAccent rounded-full transition">
+        <button id="user-menu-btn" class="flex items-center ring-2 ring-transparent hover:ring-brandAccent rounded-full transition cursor-pointer">
             <div class="text-right mx-4 hidden sm:block">
                 <span class="block text-sm font-bold tracking-tight text-white leading-tight">
                     <?= htmlspecialchars($_SESSION['nombre'] ?? 'Usuario Activo') ?>
@@ -39,11 +59,11 @@ if (isset($_GET['cerrar_sesion'])) {
 
         <!-- Dropdown -->
         <div id="user-dropdown" class="hidden absolute right-0 mt-3 w-48 bg-cardBg border border-cardBorder rounded-xl shadow-2xl py-2 text-sm z-50 transition-all duration-150">
-            <a href="<?php echo APP_URL; ?>miPerfil/" class="flex items-center px-4 py-2 text-slate-300 hover:text-white hover:bg-[#253047] transition">
+            <a href="<?php echo APP_URL; ?>miPerfil" class="flex items-center px-4 py-2 text-slate-300 hover:text-white hover:bg-[#253047] transition">
                 Mi perfil
             </a>
             <div class="border-t border-cardBorder my-1"></div>
-            <a href="<?php echo APP_URL; ?>login/" class="flex items-center px-4 py-2 text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition font-medium">
+            <a href="<?php echo APP_URL; ?>?cerrar_sesion=true" class="flex items-center px-4 py-2 text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition font-medium">
                 Cerrar sesión
             </a>
         </div>

