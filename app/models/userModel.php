@@ -26,4 +26,11 @@ class userModel extends mainModel {
             ':id'       => $id
         ]);
     }
+    public function actualizarFotoPerfil($usuario_id, $nombre_archivo) {
+    $sql = "UPDATE usuario SET foto_perfil = :foto WHERE id = :id";
+    return $this->ejecutarConsulta($sql, [
+        ':foto' => $nombre_archivo,
+        ':id'   => (int)$usuario_id
+    ]);
+    }
 }

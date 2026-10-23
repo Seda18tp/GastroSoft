@@ -1,8 +1,9 @@
 <?php
     use app\controllers\cocinaController;
 
-    if (!isset($_SESSION['id_usuario']) || strtolower($_SESSION['rol'] ?? '') !== 'cocinero') {
-        header("Location: " . APP_URL . "login");
+    $rolActual = strtolower(trim($_SESSION['rol'] ?? ''));
+    if (!isset($_SESSION['id_usuario']) || ($rolActual !== 'cocinero' && $rolActual !== 'admin' && $rolActual !== 'administrador')) {
+        echo "<script>window.location.replace('" . APP_URL . "login');</script>";
         exit();
     }
 

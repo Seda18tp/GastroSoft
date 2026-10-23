@@ -1,27 +1,34 @@
 <?php
+    $baseApp = dirname(__DIR__, 2);
+    require_once $baseApp . "/models/mainModel.php";
+    require_once $baseApp . "/models/adminModel.php";
+    require_once $baseApp . "/controllers/adminController.php";
+
     use app\controllers\adminController;
 
     $rolActual = strtolower(trim($_SESSION['rol'] ?? ''));
     if (!isset($_SESSION['id_usuario']) || ($rolActual !== 'admin' && $rolActual !== 'administrador')) {
-        header("Location: " . APP_URL . "login");
+        echo "<script>window.location.replace('" . APP_URL . "login');</script>";
         exit();
     }
 
     $insAdmin = new adminController();
+    $alerta = null;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['modulo_guardar_usuario'])) {
             $alerta = $insAdmin->guardarUsuario();
         } elseif (isset($_POST['modulo_estado_usuario'])) {
-            $insAdmin->alternarEstadoUsuario();
+            $alerta = $insAdmin->alternarEstadoUsuario();
         }
     }
 
     $usuarios = $insAdmin->obtenerUsuarios();
-    $roles = $insAdmin->obtenerRoles();
+    $roles    = $insAdmin->obtenerRoles();
 ?>
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
+  
   <!-- Navegación Admin -->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
     <div class="flex flex-wrap items-center gap-2">
@@ -49,9 +56,11 @@
     </button>
   </div>
 
-  <?php if (isset($alerta)): ?>
-    <div class="mb-5 p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 font-mono text-xs">
-      <?= htmlspecialchars($alerta['texto']) ?>
+  <!-- Contenedor Único de Alerta -->
+  <?php if (isset($alerta) && is_array($alerta)): ?>
+    <div class="mb-5 p-3.5 rounded-2xl <?= ($alerta['tipo'] === 'exito') ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/15 border border-rose-500/30 text-rose-300' ?> text-xs flex items-center gap-2 font-mono">
+      <span><?= ($alerta['tipo'] === 'exito') ? '✓' : '⚠️' ?></span>
+      <span><?= htmlspecialchars($alerta['texto']) ?></span>
     </div>
   <?php endif; ?>
 
@@ -76,12 +85,13 @@
           </tr>
         <?php else: ?>
           <?php foreach ($usuarios as $u): 
-              $activo = (strtolower(trim($u['estado'] ?? '')) === 'activo');
+              $estadoVal = strtolower(trim($u['estado'] ?? ''));
+              $activo = ($estadoVal === 'activo' || $estadoVal === '1');
               $esPropioUsuario = ((int)$u['id'] === (int)$_SESSION['id_usuario']);
           ?>
             <tr class="hover:bg-[#1B2539]/50 transition">
               <td class="py-4 px-6 font-bold text-white font-sans text-sm">
-                <?= htmlspecialchars($u['nombre_completo']) ?>
+                <?= htmlspecialchars($u['nombre_completo'] ?? $u['nombre'] ?? '') ?>
                 <?php if ($esPropioUsuario): ?>
                   <span class="ml-2 text-[10px] font-mono font-bold text-[#F59E0B]">(Tú)</span>
                 <?php endif; ?>
@@ -90,7 +100,7 @@
                 <?= htmlspecialchars($u['email']) ?>
               </td>
               <td class="py-4 px-6 text-center font-bold text-[#F59E0B]">
-                <?= htmlspecialchars($u['rol_nombre']) ?>
+                <?= htmlspecialchars($u['rol_nombre'] ?? $u['rol'] ?? '') ?>
               </td>
               <td class="py-4 px-6 text-center">
                 <span class="px-3 py-1 rounded-full text-[10px] font-bold border <?= $activo ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30' : 'bg-rose-500/15 text-rose-400 border-rose-500/30' ?>">
@@ -99,7 +109,7 @@
               </td>
               <td class="py-4 px-6 text-right space-x-3">
                 <button type="button" 
-                        onclick='abrirModalUsuario(<?= json_encode($u) ?>)'
+                        onclick='abrirModalUsuario(<?= json_encode($u, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>)'
                         class="text-slate-300 hover:text-white font-semibold cursor-pointer">
                   Editar
                 </button>
@@ -131,7 +141,7 @@
     
     <div class="flex items-center justify-between pb-4 border-b border-[#23324A] mb-5">
       <h3 class="text-white font-bold text-sm uppercase" id="modal-titulo-usuario">Nuevo Usuario</h3>
-      <button type="button" onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-white text-lg">✕</button>
+      <button type="button" onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-white text-lg cursor-pointer">✕</button>
     </div>
 
     <form action="" method="POST" autocomplete="off" class="space-y-4">
@@ -157,7 +167,7 @@
                   class="w-full bg-[#182338] border border-[#2E3F5C] rounded-xl px-4 py-2 text-white text-xs focus:outline-none focus:border-[#F59E0B]">
             <option value="">Seleccione...</option>
             <?php foreach ($roles as $r): ?>
-              <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['nombre']) ?></option>
+              <option value="<?= $r['id'] ?? $r['rol_id'] ?>"><?= htmlspecialchars($r['nombre'] ?? $r['rol_nombre']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
@@ -202,10 +212,10 @@ function abrirModalUsuario(u) {
   if (u) {
     document.getElementById('modal-titulo-usuario').innerText = 'Editar Usuario';
     document.getElementById('form-user-id').value = u.id;
-    document.getElementById('form-user-nombre').value = u.nombre_completo;
-    document.getElementById('form-user-email').value = u.email;
-    document.getElementById('form-user-rol').value = u.rol_id;
-    document.getElementById('form-user-estado').value = u.estado;
+    document.getElementById('form-user-nombre').value = u.nombre_completo || u.nombre || '';
+    document.getElementById('form-user-email').value = u.email || '';
+    document.getElementById('form-user-rol').value = u.rol_id || u.id_rol || '';
+    document.getElementById('form-user-estado').value = (u.estado == '1' || u.estado == 'Activo') ? 'Activo' : 'Inactivo';
     passInput.required = false;
     passInput.value = '';
     passHint.classList.remove('hidden');

@@ -5,7 +5,7 @@
       <p class="text-xs text-slate-400 mt-1 font-sans">Alertas de comandas listas y avisos de barra</p>
     </div>
     <a href="<?php echo APP_URL; ?>mesero" class="px-5 py-2 rounded-full font-bold text-xs uppercase bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white transition">
-      Volver al Salón
+      Volver
     </a>
   </div>
 

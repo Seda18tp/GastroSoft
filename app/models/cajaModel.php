@@ -1,0 +1,130 @@
+<?php
+namespace app\models;
+
+class cajaModel extends mainModel {
+    //Obtener mesas con precuenta */
+    public function obtenerMesasLiquidacion() {
+        $sql = "SELECT 
+                    m.id AS mesa_id,
+                    m.numero_mesa,
+                    m.estado AS mesa_estado,
+                    p.id AS pedido_id,
+                    p.total,
+                    p.estado AS pedido_estado,
+                    u.nombre_completo AS mesero_nombre
+                FROM mesa m
+                INNER JOIN pedido p ON p.mesa_id = m.id AND LOWER(p.estado) NOT IN ('pagado', 'cancelado')
+                LEFT JOIN usuario u ON p.usuario_id = u.id
+                WHERE LOWER(m.estado) IN ('precuenta')
+                ORDER BY m.numero_mesa ASC";
+        return $this->ejecutarConsulta($sql);
+    }
+
+    // Procesar la liquidación y liberar la mesa
+    public function registrarPago($pedido_id, $mesa_id, $metodo_pago, $monto, $monto_recibido, $cambio) {
+        try {
+            // 1. Insertar o actualizar registro de pago
+            $sqlPago = "INSERT INTO pago (pedido_id, metodo_pago, monto, monto_recibido, cambio, fecha) 
+                        VALUES (:pedido_id, :metodo_pago, :monto, :monto_recibido, :cambio, NOW())
+                        ON DUPLICATE KEY UPDATE 
+                            metodo_pago = VALUES(metodo_pago),
+                            monto = VALUES(monto),
+                            monto_recibido = VALUES(monto_recibido),
+                            cambio = VALUES(cambio),
+                            fecha = NOW()";
+
+            $this->ejecutarConsulta($sqlPago, [
+                ':pedido_id'      => (int)$pedido_id,
+                ':metodo_pago'    => $metodo_pago,
+                ':monto'          => (float)$monto,
+                ':monto_recibido' => (float)$monto_recibido,
+                ':cambio'         => (float)$cambio
+            ]);
+
+            // 2. Marcar pedido como Pagado
+            $sqlPedido = "UPDATE pedido SET estado = 'Pagado' WHERE id = :pedido_id";
+            $this->ejecutarConsulta($sqlPedido, [':pedido_id' => (int)$pedido_id]);
+
+            // 3. Liberar mesa colocándola en estado Libre
+            $sqlMesa = "UPDATE mesa SET estado = 'Disponible' WHERE id = :mesa_id";
+            $this->ejecutarConsulta($sqlMesa, [':mesa_id' => (int)$mesa_id]);
+
+            return true;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+    /* 1. Consultar balance del día actual */
+    public function obtenerBalanceTurno() {
+        // Suma de pagos del día
+        $sqlVentas = "SELECT COALESCE(SUM(monto), 0) AS total_ventas 
+                    FROM pago 
+                    WHERE DATE(fecha) = CURDATE()";
+        $stmtVentas = $this->ejecutarConsulta($sqlVentas);
+        $ventas = (float)($stmtVentas->fetch()['total_ventas'] ?? 0);
+
+        // Suma de gastos del día (con control por si la tabla aún no tiene datos)
+        $gastos = 0.0;
+        try {
+            $sqlGastos = "SELECT COALESCE(SUM(monto), 0) AS total_gastos 
+                        FROM gasto 
+                        WHERE DATE(fecha) = CURDATE()";
+            $stmtGastos = $this->ejecutarConsulta($sqlGastos);
+            $gastos = (float)($stmtGastos->fetch()['total_gastos'] ?? 0);
+        } catch (\PDOException $e) {
+            $gastos = 0.0;
+        }
+
+        $esperado = $ventas - $gastos;
+
+        return [
+            'ventas'   => $ventas,
+            'gastos'   => $gastos,
+            'esperado' => $esperado
+        ];
+    }
+
+    /* 2. Guardar registro en la tabla cierre_caja */
+    public function registrarCierreCaja($datos) {
+        $sql = "INSERT INTO cierre_caja (
+                    usuario_id, 
+                    fecha, 
+                    monto_ventas, 
+                    monto_gastos, 
+                    monto_esperado, 
+                    monto_real, 
+                    diferencia, 
+                    observaciones
+                ) VALUES (
+                    :usuario_id, 
+                    NOW(), 
+                    :monto_ventas, 
+                    :monto_gastos, 
+                    :monto_esperado, 
+                    :monto_real, 
+                    :diferencia, 
+                    :observaciones
+                )";
+
+        return $this->ejecutarConsulta($sql, [
+            ':usuario_id'     => $datos['usuario_id'],
+            ':monto_ventas'   => $datos['monto_ventas'],
+            ':monto_gastos'   => $datos['monto_gastos'],
+            ':monto_esperado' => $datos['monto_esperado'],
+            ':monto_real'     => $datos['monto_real'],
+            ':diferencia'     => $datos['diferencia'],
+            ':observaciones'  => $datos['observaciones']
+        ]);
+    }
+    /* Registrar una salida de dinero en la tabla gasto */
+    public function registrarGasto($datos) {
+        $sql = "INSERT INTO gasto (usuario_id, description, monto, fecha) 
+                VALUES (:usuario_id, :description, :monto, NOW())";
+
+        return $this->ejecutarConsulta($sql, [
+            ':usuario_id'   => (int)$datos['usuario_id'],
+            ':description'  => $datos['description'],
+            ':monto'        => (float)$datos['monto']
+        ]);
+    }
+}

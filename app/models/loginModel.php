@@ -6,11 +6,10 @@ class loginModel extends mainModel {
     /* Obtener datos del usuario por email */
     protected function obtenerUsuario($email) {
         $sql = $this->ejecutarConsulta(
-            "SELECT u.id, u.nombre_completo, u.email, u.password, u.estado, r.nombre AS rol_nombre 
-                FROM usuario u 
-                INNER JOIN rol r ON u.rol_id = r.id 
-                WHERE LOWER(TRIM(u.email)) = LOWER(:email) 
-                LIMIT 1",
+            "SELECT u.id, u.nombre_completo, u.email, u.password, u.estado, u.foto_perfil, r.nombre AS rol_nombre 
+            FROM usuario u 
+            INNER JOIN rol r ON u.rol_id = r.id 
+            WHERE u.email = :email LIMIT 1",
             [":email" => $email]
         );
         return $sql;

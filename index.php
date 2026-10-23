@@ -1,4 +1,5 @@
 <?php
+    ob_start();     
     require_once "./config/app.php";
     require_once "./config/conexion.php";
     require_once "./autoload.php";
@@ -28,6 +29,7 @@
     } else {
         $url = ["login"];
     }
+    ob_end_flush();
 ?>
 <!DOCTYPE html>
 <html lang="es">

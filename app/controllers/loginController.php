@@ -45,21 +45,24 @@ class loginController extends loginModel {
 
                 session_regenerate_id(true);
 
-                $_SESSION['id_usuario'] = $user['id'];
-                $_SESSION['nombre']     = $user['nombre_completo'];
-                $_SESSION['email']      = $user['email'];
-                $_SESSION['rol']        = strtolower($user['rol_nombre']);
+                $_SESSION['id_usuario']  = $user['id'];
+                $_SESSION['nombre']      = $user['nombre_completo'];
+                $_SESSION['email']       = $user['email'];
+                $_SESSION['rol']         = strtolower($user['rol_nombre']);
+                
+                // Asignar la foto almacenada en la base de datos a la sesión
+                $_SESSION['foto_perfil'] = trim($user['foto_perfil'] ?? '');
 
                 $vistaDestino = match (strtolower($user['rol_nombre'])) {
-                    'administrador' => 'admin',
-                    'cocinero'      => 'cocinero',
-                    'cajero'        => 'caja',
-                    default         => 'mesero'
+                    'administrador', 'admin' => 'admin',
+                    'cocinero'               => 'cocinero',
+                    'cajero'                 => 'caja',
+                    default                  => 'mesero'
                 };
 
                 return [
                     "tipo" => "redireccionar",
-                    "url"  => rtrim(APP_URL) . $vistaDestino
+                    "url"  => rtrim(APP_URL, '/') . '/' . $vistaDestino
                 ];
             }
         }

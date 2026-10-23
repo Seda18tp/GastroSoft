@@ -4,7 +4,7 @@
         /*--Modelo obtener vista--*/
         protected function obtenerVistasModelo($vista){
             $listaBlanca=["admin","mesero","cocinero",
-            "caja","miPerfil","notiMesero","mesas",
+            "caja","miPerfil","notiMesero","configSalon",
             "registrarGasto","cerrarCaja","historialPedido",
             "notiCocinero","estadisticas","carta","inventario",
             "usuarios","nuevaReserva","nuevoPlato","editarPlato"];
