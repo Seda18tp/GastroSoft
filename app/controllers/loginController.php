@@ -44,7 +44,7 @@ class loginController extends loginModel {
                 }
 
                 if (!headers_sent()) {
-                    session_regenerate_id(true);
+                    @session_regenerate_id(true);
                 }
 
                 $_SESSION['id_usuario']  = $user['id'];
@@ -73,4 +73,3 @@ class loginController extends loginModel {
         ];
     }
 }
-?>

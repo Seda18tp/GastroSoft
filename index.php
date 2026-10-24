@@ -36,7 +36,6 @@ use app\controllers\viewsController;
 $viewsController = new viewsController();
 $vista = $viewsController->obtenerVistas($url[0]);
 
-// Si es login o 404, se carga de forma directa y limpia
 if ($vista == "login" || $vista == "404") {
     require_once __DIR__ . "/app/views/content/" . $vista . "-view.php";
     exit();
