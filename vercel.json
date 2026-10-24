@@ -1,6 +1,6 @@
 {
   "functions": {
-    "index.php": {
+    "api/index.php": {
       "runtime": "vercel-php@0.7.2"
     }
   },
@@ -8,7 +8,6 @@
     { "src": "/app/img/(.*)", "dest": "/app/img/$1" },
     { "src": "/app/views/css/(.*)", "dest": "/app/views/css/$1" },
     { "src": "/app/views/js/(.*)", "dest": "/app/views/js/$1" },
-    { "src": "/app/ajax/(.*)", "dest": "/index.php" },
-    { "src": "/(.*)", "dest": "/index.php" }
+    { "src": "/(.*)", "dest": "/api/index.php" }
   ]
 }
