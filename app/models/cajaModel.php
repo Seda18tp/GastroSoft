@@ -38,10 +38,10 @@ class cajaModel extends mainModel {
                 ':cambio'         => (float)$cambio
             ]);
 
-            $sqlPedido = "UPDATE pedido SET estado = 'Pagado' WHERE id = :pedido_id";
+            $sqlPedido = "UPDATE pedido SET estado = 'Pagado'::estado_pedido WHERE id = :pedido_id";
             $this->ejecutarConsulta($sqlPedido, [':pedido_id' => (int)$pedido_id]);
 
-            $sqlMesa = "UPDATE mesa SET estado = 'Disponible' WHERE id = :mesa_id";
+            $sqlMesa = "UPDATE mesa SET estado = 'Disponible'::estado_mesa WHERE id = :mesa_id";
             $this->ejecutarConsulta($sqlMesa, [':mesa_id' => (int)$mesa_id]);
 
             return true;

@@ -46,7 +46,7 @@ class meseroModel extends mainModel {
                     tipo, 
                     TO_CHAR(fecha, 'HH12:MI AM') AS hora 
                 FROM notificacion 
-                WHERE tipo = 'pedido_listo' 
+                WHERE LOWER(tipo::text) = 'pedido_listo' 
                 ORDER BY fecha DESC 
                 LIMIT " . (int)$limite;
 
@@ -56,7 +56,7 @@ class meseroModel extends mainModel {
     public function listarProductosDisponibles() {
         $sql = "SELECT id, nombre, precio_venta, categoria_id, img_url 
                 FROM producto 
-                WHERE estado = 'Activo' OR disponible = true 
+                WHERE estado::text = 'Activo' OR disponible = true 
                 ORDER BY nombre ASC";
         return $this->ejecutarConsulta($sql);
     }
@@ -75,17 +75,17 @@ class meseroModel extends mainModel {
         if ($pedido && !empty($pedido['id'])) {
             $pedido_id = (int)$pedido['id'];
 
-            $sqlReactivar = "UPDATE pedido SET estado = 'Pendiente' WHERE id = :pedido_id";
+            $sqlReactivar = "UPDATE pedido SET estado = 'Pendiente'::estado_pedido WHERE id = :pedido_id";
             $stmtReactivar = $conexion->prepare($sqlReactivar);
             $stmtReactivar->execute([':pedido_id' => $pedido_id]);
 
-            $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Ocupada' WHERE id = :mesa_id");
+            $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Ocupada'::estado_mesa WHERE id = :mesa_id");
             $stmtMesa->execute([':mesa_id' => (int)$mesa_id]);
 
             $esAdicion = true;
         } else {
             $sqlNuevo = "INSERT INTO pedido (mesa_id, usuario_id, total, estado, fecha) 
-                         VALUES (:mesa_id, :usuario_id, 0.00, 'Pendiente', CURRENT_TIMESTAMP) 
+                         VALUES (:mesa_id, :usuario_id, 0.00, 'Pendiente'::estado_pedido, CURRENT_TIMESTAMP)
                          RETURNING id";
             $stmtNuevo = $conexion->prepare($sqlNuevo);
             $stmtNuevo->execute([
@@ -95,7 +95,7 @@ class meseroModel extends mainModel {
 
             $pedido_id = (int)($stmtNuevo->fetch(\PDO::FETCH_ASSOC)['id'] ?? 0);
 
-            $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Ocupada' WHERE id = :mesa_id");
+            $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Ocupada'::estado_mesa WHERE id = :mesa_id");
             $stmtMesa->execute([':mesa_id' => (int)$mesa_id]);
 
             $esAdicion = false;
@@ -104,7 +104,7 @@ class meseroModel extends mainModel {
         if ($pedido_id <= 0) return false;
 
         $sqlDetalle = "INSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario, subtotal, observaciones, estado) 
-                       VALUES (:pedido_id, :producto_id, :cantidad, :precio, :subtotal, :notas, 'Pendiente')";
+                       VALUES (:pedido_id, :producto_id, :cantidad, :precio, :subtotal, :notas, 'Pendiente'::estado_detalle)";
         $stmtDetalle = $conexion->prepare($sqlDetalle);
 
         foreach ($items as $it) {
@@ -153,7 +153,7 @@ class meseroModel extends mainModel {
     }
 
     public function solicitarPrecuenta($mesa_id) {
-        $sql = "UPDATE mesa SET estado = 'Precuenta' WHERE id = :mesa_id";
+        $sql = "UPDATE mesa SET estado = 'Precuenta'::estado_mesa WHERE id = :mesa_id";
         return $this->ejecutarConsulta($sql, [':mesa_id' => (int)$mesa_id]);
     }
 }

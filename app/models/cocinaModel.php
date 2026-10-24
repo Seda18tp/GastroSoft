@@ -51,7 +51,7 @@ class cocinaModel extends mainModel {
                     tipo, 
                     TO_CHAR(fecha, 'HH12:MI AM') AS hora 
                 FROM notificacion 
-                WHERE tipo = 'nuevo_pedido' 
+                WHERE LOWER(tipo::text) = 'nuevo_pedido' 
                 ORDER BY fecha DESC 
                 LIMIT " . (int)$limite;
 

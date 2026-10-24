@@ -7,12 +7,12 @@ class adminModel extends mainModel {
         $sqlVentas = "SELECT COALESCE(SUM(total), 0) AS total_ventas 
                       FROM pedido 
                       WHERE fecha::date = CURRENT_DATE 
-                        AND estado = 'Pagado'";
+                        AND estado::text = 'Pagado'";
         $ventas = $this->ejecutarConsulta($sqlVentas)->fetch()['total_ventas'] ?? 0;
 
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE estado = 'Ocupada' OR estado = 'Precuenta'";
+                     WHERE estado::text = 'Ocupada' OR estado::text = 'Precuenta'";
         $mesas = $this->ejecutarConsulta($sqlMesas)->fetch()['mesas_ocupadas'] ?? 0;
 
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 

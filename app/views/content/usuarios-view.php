@@ -23,7 +23,6 @@ $roles = $insAdmin->obtenerRoles();
 ?>
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
-  <!-- Nav -->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
     <div class="flex flex-wrap items-center gap-2">
       <a href="<?php echo APP_URL; ?>admin" class="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
@@ -55,7 +54,6 @@ $roles = $insAdmin->obtenerRoles();
     </div>
   <?php endif; ?>
 
-  <!-- Tabla de Usuarios -->
   <div class="bg-[#121929] border border-[#23324A] rounded-2xl shadow-xl overflow-hidden font-mono">
     <table class="w-full text-left text-xs">
       <thead>
@@ -114,10 +112,8 @@ $roles = $insAdmin->obtenerRoles();
   </div>
 </main>
 
-<!-- Modal Usuario -->
 <div id="modal-usuario" class="fixed inset-0 bg-[#0A0F1D]/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
   <div class="bg-[#121A2A] border border-[#23324A] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl font-mono">
-    
     <div class="flex items-center justify-between pb-4 border-b border-[#23324A] mb-5">
       <h3 class="text-white font-bold text-sm uppercase" id="modal-titulo-usuario">Nuevo Usuario</h3>
       <button type="button" onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-white text-lg cursor-pointer">✕</button>
