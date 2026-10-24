@@ -22,11 +22,12 @@ if (!isset($_SESSION['id_usuario'])) {
     exit();
 }
 
-// foto Perfil
+// Resolver foto de perfil (Soporta Base64, URL externa o Default)
 $fotoSession = trim($_SESSION['foto_perfil'] ?? '');
-$rutaFisica  = dirname(__DIR__, 2) . '/img/perfil/' . $fotoSession;
 
-if (!empty($fotoSession) && file_exists($rutaFisica)) {
+if (str_starts_with($fotoSession, 'data:image/')) {
+    $avatarImg = $fotoSession;
+} elseif (!empty($fotoSession) && file_exists(dirname(__DIR__, 2) . '/img/perfil/' . $fotoSession)) {
     $avatarImg = APP_URL . 'app/img/perfil/' . $fotoSession . '?v=' . time();
 } else {
     $avatarImg = APP_URL . 'app/img/default.png';
@@ -53,13 +54,13 @@ if (!empty($fotoSession) && file_exists($rutaFisica)) {
                     <?= htmlspecialchars($_SESSION['rol'] ?? 'Invitado') ?>
                 </span>
             </div>
-        <!--Foto perfil-->
+            <!-- Foto perfil -->
             <div class="w-10 h-10 rounded-full overflow-hidden border border-[#23324A] bg-[#182338] pointer-events-none">
                 <img src="<?= $avatarImg ?>" class="w-full h-full object-cover" alt="Foto">
             </div>
         </button>
 
-        <!--Desplegable-->
+        <!-- Desplegable -->
         <div id="dropdown-usuario-box" 
              class="absolute right-0 mt-2 w-48 bg-[#162032] border border-[#26354D] rounded-xl shadow-2xl py-2 font-mono text-sm"
              style="display: none; z-index: 1000;">
@@ -73,20 +74,22 @@ if (!empty($fotoSession) && file_exists($rutaFisica)) {
         </div>
     </div>
 </header>
-<script>    document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('btn-usuario-toggle');
-    const menu = document.getElementById('dropdown-usuario-box');
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('btn-usuario-toggle');
+        const menu = document.getElementById('dropdown-usuario-box');
 
-    if (btn && menu) {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-        });
+        if (btn && menu) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+            });
 
-        document.addEventListener('click', (e) => {
-            if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                menu.style.display = 'none';
-            }
-        });
-    }
-    });</script>
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>

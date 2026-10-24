@@ -18,30 +18,28 @@ class userController extends userModel {
             ];
         }
 
-        //Guardar foto perfil
+        // Procesar foto de perfil mediante Base64 (Compatible con Vercel Read-Only)
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
             $archivoTmp = $_FILES['foto_perfil']['tmp_name'];
             $extension  = strtolower(pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION));
             $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($extension, $permitidos)) {
-                $carpetaDestino = dirname(__DIR__) . '/img/perfil/';
-                if (!is_dir($carpetaDestino)) {
-                    mkdir($carpetaDestino, 0777, true);
-                }
-
-                $nuevoNombreArchivo = 'user_' . $usuario_id . '_' . time() . '.' . $extension;
-                $destinoCompleto    = $carpetaDestino . $nuevoNombreArchivo;
-
-                if (move_uploaded_file($archivoTmp, $destinoCompleto)) {
-                    $this->actualizarFotoPerfil($usuario_id, $nuevoNombreArchivo);
-                    $_SESSION['foto_perfil'] = $nuevoNombreArchivo;
-                } else {
+                // Limitar tamaño a 2MB para optimizar la base de datos
+                if ($_FILES['foto_perfil']['size'] > 2 * 1024 * 1024) {
                     return [
                         "tipo"  => "error",
-                        "texto" => "No se pudo guardar la imagen en app/img/perfil/."
+                        "texto" => "La imagen no debe superar los 2MB."
                     ];
                 }
+
+                $contenidoBinario = file_get_contents($archivoTmp);
+                $tipoMime = ($extension === 'jpg') ? 'jpeg' : $extension;
+                $imagenBase64 = 'data:image/' . $tipoMime . ';base64,' . base64_encode($contenidoBinario);
+
+                // Guardar la cadena Base64 en la base de datos
+                $this->actualizarFotoPerfil($usuario_id, $imagenBase64);
+                $_SESSION['foto_perfil'] = $imagenBase64;
             } else {
                 return [
                     "tipo"  => "error",
@@ -76,4 +74,3 @@ class userController extends userModel {
         ];
     }
 }
-?>
