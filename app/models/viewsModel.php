@@ -1,8 +1,8 @@
 <?php
     namespace app\models;
     class viewsModel{
-        /*--Modelo obtener vista--*/
-        protected function obtenerVistasModelo($vista){
+        //obtener vista lista blanca
+        protected function obtenerVistasM($vista){
             $listaBlanca=["admin","mesero","cocinero",
             "caja","miPerfil","notiMesero","configSalon",
             "registrarGasto","cerrarCaja","historialPedido",

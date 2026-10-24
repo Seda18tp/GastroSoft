@@ -55,9 +55,6 @@
           <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-[#2E3F5C] group-hover:border-[#F59E0B] transition bg-[#182338]">
             <img id="img-vista-previa" src="<?= $avatarImg ?>" class="w-full h-full object-cover" alt="Perfil">
           </div>
-          <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-[#F59E0B] text-[#0D1322] rounded-full flex items-center justify-center text-xs shadow-md border-2 border-[#121A2A]">
-            📷
-          </div>
         </div>
 
         <div>
@@ -106,15 +103,4 @@
     </form>
   </div>
 </main>
-
-<script>
-function previewImg(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      document.getElementById('img-vista-previa').src = e.target.result;
-    }
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

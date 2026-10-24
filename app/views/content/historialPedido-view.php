@@ -1,7 +1,6 @@
 <?php
     use app\controllers\cocinaController;
 
-    // Validación de sesión
     if (!isset($_SESSION['id_usuario']) || strtolower($_SESSION['rol'] ?? '') !== 'cocinero') {
         header("Location: " . APP_URL . "login");
         exit();
@@ -14,8 +13,8 @@
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-mono select-none">
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h2 class="text-xl font-black text-white">Historial de Comandas y Pedidos</h2>
-      <p class="text-xs text-slate-400 mt-1 font-sans">Registro de órdenes procesadas y despachadas</p>
+      <h2 class="text-xl font-black text-white">Historial de Pedidos</h2>
+      <p class="text-xs text-slate-400 mt-1 font-sans">Registro de órdenes despachadas</p>
     </div>
     <a href="<?php echo APP_URL; ?>cocinero" class="px-5 py-2 rounded-full font-bold text-xs uppercase bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white transition">
       Volver

@@ -9,7 +9,6 @@ if (!isset($_SESSION['id_usuario']) || ($rolActual !== 'admin' && $rolActual !==
 
 $insAdmin = new adminController();
 
-// Procesar cambio de estado de reserva
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modulo_cambiar_estado_reserva'])) {
     $insAdmin->cambiarEstadoReservaC();
 }
@@ -35,7 +34,7 @@ $reservas = $insAdmin->obtenerReservasDia();
     </a>
   </div>
 
-  <!-- Tarjetas Superiores (KPIs) -->
+  <!--Tarjetas-->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
     
     <!-- Ventas del Día -->
@@ -46,7 +45,7 @@ $reservas = $insAdmin->obtenerReservasDia();
       </span>
     </div>
 
-    <!-- Mesas Ocupadas -->
+    <!--MesasOcupadas-->
     <div class="bg-[#121A2A] border border-[#23324A] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
       <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">MESAS OCUPADAS:</span>
       <span class="text-2xl font-black text-[#F59E0B] mt-2">
@@ -54,7 +53,7 @@ $reservas = $insAdmin->obtenerReservasDia();
       </span>
     </div>
 
-    <!-- Total Pedidos -->
+    <!--TotalPedidos-->
     <div class="bg-[#121A2A] border border-[#23324A] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
       <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">TOTAL PEDIDOS:</span>
       <span class="text-2xl font-black text-white mt-2">
@@ -62,7 +61,7 @@ $reservas = $insAdmin->obtenerReservasDia();
       </span>
     </div>
 
-    <!-- Alertas Stock -->
+    <!--AlertaStock-->
     <div class="bg-[#121A2A] border border-[#23324A] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
       <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">ALERTAS STOCK:</span>
       <span class="text-2xl font-black <?= $metricas['alertas_stock'] > 0 ? 'text-rose-500' : 'text-slate-400' ?> mt-2">
@@ -72,15 +71,13 @@ $reservas = $insAdmin->obtenerReservasDia();
 
   </div>
 
-  <!-- Sección de Reservas del Día -->
+  <!--Reservas-->
   <div class="flex items-center justify-between mb-4">
-    <h3 class="text-base font-extrabold text-white tracking-wide">Reservas del día</h3>
+    <h3 class="text-base font-extrabold text-white tracking-wide">Reservas del dia</h3>
     <a href="<?php echo APP_URL; ?>nuevaReserva" class="px-5 py-2 rounded-full text-xs font-bold bg-[#F59E0B] text-[#0D1322] hover:brightness-110 transition shadow-md">
       Nueva Reserva
     </a>
   </div>
-
-  <!-- Tabla de Reservas -->
   <div class="bg-[#121A2A] border border-[#23324A] rounded-2xl shadow-xl overflow-hidden font-mono">
     <table class="w-full text-left text-xs">
       <thead>
@@ -147,7 +144,7 @@ $reservas = $insAdmin->obtenerReservasDia();
 
 </main>
 
-<!-- Modal Emergente de Detalles de Reserva -->
+<!--Detalles-->
 <div id="modal-detalle-reserva" class="fixed inset-0 bg-[#0A0F1D]/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
   <div class="bg-[#121A2A] border border-[#23324A] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl font-mono">
     
@@ -159,7 +156,6 @@ $reservas = $insAdmin->obtenerReservasDia();
       <button type="button" onclick="cerrarModalDetalleReserva()" class="text-slate-400 hover:text-white text-lg">✕</button>
     </div>
 
-    <!-- Datos Informativos -->
     <div class="space-y-3 text-xs mb-6">
       <div class="bg-[#162032] p-3.5 rounded-xl border border-[#26354D] flex justify-between items-center">
         <span class="text-slate-400 uppercase font-bold">Cliente:</span>
@@ -194,7 +190,6 @@ $reservas = $insAdmin->obtenerReservasDia();
       </div>
     </div>
 
-    <!-- Formulario para Cambiar Estado -->
     <form action="" method="POST" class="pt-3 border-t border-[#23324A] flex flex-col sm:flex-row gap-3 items-center">
       <input type="hidden" name="modulo_cambiar_estado_reserva" value="1">
       <input type="hidden" name="reserva_id" id="form-reserva-id">
@@ -202,7 +197,7 @@ $reservas = $insAdmin->obtenerReservasDia();
       <div class="w-full sm:flex-1">
         <select name="nuevo_estado" id="form-reserva-estado" class="w-full bg-[#182338] border border-[#2E3F5C] rounded-xl px-3 py-2.5 text-white text-xs focus:outline-none focus:border-[#F59E0B]">
           <option value="Confirmada">Confirmada</option>
-          <option value="finalizada">Completa</option>
+          <option value="finalizada">Finalizada</option>
           <option value="Cancelada">Cancelada</option>
         </select>
       </div>
@@ -214,27 +209,4 @@ $reservas = $insAdmin->obtenerReservasDia();
 
   </div>
 </div>
-
-<script>
-function abrirModalDetalleReserva(res) {
-  document.getElementById('det-reserva-id').innerText = '#' + res.id;
-  document.getElementById('form-reserva-id').value = res.id;
-  document.getElementById('det-cliente').innerText = res.nombre_cliente;
-  document.getElementById('det-telefono').innerText = res.telefono ? res.telefono : 'No registrado';
-  document.getElementById('det-mesa').innerText = 'Mesa #' + res.numero_mesa;
-  document.getElementById('det-personas').innerText = res.cantidad_personas + ' personas';
-  
-  const hInicio = res.hora_inicio ? res.hora_inicio.substring(0, 5) : '--:--';
-  const hFin = res.hora_fin ? res.hora_fin.substring(0, 5) : '--:--';
-  document.getElementById('det-horario').innerText = hInicio + ' a ' + hFin;
-  
-  document.getElementById('det-observaciones').innerText = res.observaciones ? res.observaciones : 'Sin observaciones especiales.';
-  document.getElementById('form-reserva-estado').value = res.estado;
-
-  document.getElementById('modal-detalle-reserva').classList.remove('hidden');
-}
-
-function cerrarModalDetalleReserva() {
-  document.getElementById('modal-detalle-reserva').classList.add('hidden');
-}
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

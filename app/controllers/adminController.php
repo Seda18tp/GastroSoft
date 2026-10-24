@@ -400,3 +400,4 @@ class adminController extends adminModel {
         exit();
     }
 }
+?>

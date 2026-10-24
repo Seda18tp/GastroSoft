@@ -49,8 +49,6 @@ class loginController extends loginModel {
                 $_SESSION['nombre']      = $user['nombre_completo'];
                 $_SESSION['email']       = $user['email'];
                 $_SESSION['rol']         = strtolower($user['rol_nombre']);
-                
-                // Asignar la foto almacenada en la base de datos a la sesión
                 $_SESSION['foto_perfil'] = trim($user['foto_perfil'] ?? '');
 
                 $vistaDestino = match (strtolower($user['rol_nombre'])) {
@@ -73,3 +71,4 @@ class loginController extends loginModel {
         ];
     }
 }
+?>

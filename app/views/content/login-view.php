@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <!-- Alerta en caso de credenciales incorrectas -->
+    <!--Alertas-->
     <?php if (isset($alerta['texto'])): ?>
       <div class="mb-4 p-3 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs font-mono flex items-center gap-2">
         <span>⚠️</span>
@@ -37,7 +37,6 @@
       </div>
     <?php endif; ?>
 
-    <!-- Formulario de Acceso -->
     <form action="" method="POST" autocomplete="off" class="space-y-4 font-mono">
       <input type="hidden" name="login_form" value="1">
 

@@ -41,25 +41,24 @@
         use app\controllers\viewsController;
 
         $viewsController = new viewsController();
-        $vista = $viewsController->obtenerVistasControlador($url[0]);
+        $vista = $viewsController->obtenerVistas($url[0]);
 
         if ($vista == "login" || $vista == "404") {
             require_once "./app/views/content/" . $vista . "-view.php";
         } else {
     ?>
-    <!-- Principal para vistas autenticadas -->
     <main class="page-container flex-1 flex flex-col">
 
-        <?php require_once "./app/views/inc/navbar.php"; ?>      
+        <?php require_once "./app/views/inc/navbar.php"; ?>     
 
-        <!-- Contenido -->
         <section class="full-width pageContent scroll flex-1" id="pageContent">
             <?php 
                 require_once $vista;
             ?>
         </section>
-
+        <?php require_once "./app/views/inc/footer.php"; ?>
         <?php require_once "./app/views/inc/script.php"; ?>
+
     </main>
     <?php
         }

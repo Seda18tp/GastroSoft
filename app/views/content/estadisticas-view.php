@@ -1,7 +1,6 @@
 <?php
     use app\controllers\adminController;
 
-    // Validación de acceso administrador
     $rolActual = strtolower(trim($_SESSION['rol'] ?? ''));
     if (!isset($_SESSION['id_usuario']) || ($rolActual !== 'admin' && $rolActual !== 'administrador')) {
         header("Location: " . APP_URL . "login");
@@ -14,7 +13,7 @@
 ?>
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
-  <!-- Navegación Admin -->
+  <!--Nav-->
   <div class="flex flex-wrap items-center gap-2 mb-8">
     <a href="<?php echo APP_URL; ?>admin" class="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white transition">
       Volver
@@ -35,10 +34,10 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
     
-    <!-- Ventas por Método -->
+    <!--Ventas-->
     <div class="bg-[#121929] border border-[#23324A] rounded-2xl p-6 shadow-xl flex flex-col justify-between">
       <div>
-        <h3 class="font-mono text-sm font-bold text-white mb-4">Ventas por Método (Hoy)</h3>
+        <h3 class="font-mono text-sm font-bold text-white mb-4">Ventas por Método</h3>
         <div class="space-y-3 font-mono text-xs">
           <?php if (empty($statsMetodos['metodos'])): ?>
             <p class="py-6 text-center text-slate-500">No hay pagos registrados hoy.</p>
@@ -66,7 +65,7 @@
       <?php endif; ?>
     </div>
 
-    <!-- Platos más Vendidos -->
+    <!--PlatosTop-->
     <div class="lg:col-span-2 bg-[#121929] border border-[#23324A] rounded-2xl p-6 shadow-xl">
       <h3 class="font-mono text-sm font-bold text-white mb-4">Top Productos Vendidos Hoy</h3>
       

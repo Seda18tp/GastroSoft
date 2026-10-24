@@ -12,21 +12,19 @@
         private $user   = DB_USER;
         private $pass   = DB_PASS;
 
-        /* Conectar a la base de datos */
+        //conexion
         protected function conectar() {
             $conexion = new PDO("mysql:host=".$this->server.";dbname=".$this->db.";charset=utf8mb4", $this->user, $this->pass);
             $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $conexion;
         }
 
-        /* Ejecutar consultas simples */
         public function ejecutarConsulta($consulta, $params = []) {
             $sql = $this->conectar()->prepare($consulta);
             $sql->execute($params);
             return $sql;
         }
 
-        /* Limpiar cadenas de texto */
         public function limpiarCadena($cadena) {
             $palabras = [
                 "<script>", "</script>", "<script src", "<script type=", 
@@ -42,7 +40,6 @@
             return trim(stripslashes($cadena));
         }
 
-        /* Insertar datos genéricos */
         protected function guardarDatos($tabla, $datos) {
             $query = "INSERT INTO $tabla (";
             $campos = "";
@@ -64,7 +61,6 @@
             return $sql;
         }
 
-        /* Actualizar datos genéricos */
         protected function actualizarDatos($tabla, $datos, $condicion) {
             $query = "UPDATE $tabla SET ";
             $valores = [];
@@ -83,10 +79,10 @@
             return $sql;
         }
 
-        /* Eliminar registros */
         protected function eliminarRegistro($tabla, $campo, $id) {
             $sql = $this->conectar()->prepare("DELETE FROM $tabla WHERE $campo = :id");
             $sql->execute([":id" => $id]);
             return $sql;
         }
     }
+    ?>

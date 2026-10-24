@@ -5,7 +5,6 @@ use app\models\cocinaModel;
 
 class cocinaController extends cocinaModel {
 
-    /* Obtener comandas agrupadas por pedido */
     public function obtenerPedidos() {
         $consulta = $this->listarPedidos();
         $filas = $consulta->fetchAll();
@@ -40,7 +39,6 @@ class cocinaController extends cocinaModel {
         return $comandas;
     }
 
-    /* Procesar el cambio de estado de la comanda */
     public function cambiarEstadoPedido() {
         $pedido_id   = (int)($_POST['pedido_id'] ?? 0);
         $estado_act  = trim($_POST['estado_actual'] ?? '');
@@ -51,14 +49,11 @@ class cocinaController extends cocinaModel {
             return;
         }
 
-        if (strtolower($estado_act) === 'en cocina') {
-            // Pasa a En Preparacion
+        if (strtolower($estado_act) === 'pendiente') {
             $this->actualizarEstadoPedido($pedido_id, 'En Preparacion');
         } elseif (strtolower($estado_act) === 'en preparacion') {
-            // Pasa a Listo
             $this->actualizarEstadoPedido($pedido_id, 'Listo');
 
-            // Notificar al mesero
             $mensaje = "El pedido de la Mesa #" . $mesa_numero . " está listo para servir.";
             $this->crearNotificacionMesero($pedido_id, $mesero_id, $mensaje);
         }
@@ -82,3 +77,4 @@ class cocinaController extends cocinaModel {
         return $consulta->fetchAll();
     }
 }
+?>

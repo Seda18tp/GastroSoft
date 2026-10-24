@@ -34,3 +34,4 @@ class userModel extends mainModel {
     ]);
     }
 }
+?>

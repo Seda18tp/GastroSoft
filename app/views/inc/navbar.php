@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Cierre de Sesión
+// Cierre Sesion
 if (isset($_GET['cerrar_sesion'])) {
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
@@ -16,13 +16,13 @@ if (isset($_GET['cerrar_sesion'])) {
     exit();
 }
 
-// Comprobar sesión
+// Comprobar sesion
 if (!isset($_SESSION['id_usuario'])) {
     echo "<script>window.location.replace('" . APP_URL . "login');</script>";
     exit();
 }
 
-// Ruta física directa en app/img/perfil/
+// foto Perfil
 $fotoSession = trim($_SESSION['foto_perfil'] ?? '');
 $rutaFisica  = dirname(__DIR__, 2) . '/img/perfil/' . $fotoSession;
 
@@ -32,9 +32,7 @@ if (!empty($fotoSession) && file_exists($rutaFisica)) {
     $avatarImg = APP_URL . 'app/img/default.png';
 }
 ?>
-
 <header class="w-full bg-[#121929] px-6 py-4 flex items-center justify-between border-b border-[#23324A] select-none relative" style="z-index: 50;">
-    <!-- Logo -->
     <div class="flex items-center space-x-3">
         <img class="w-10 h-10 rounded-full object-cover border border-[#23324A]" 
              src="<?php echo APP_URL; ?>app/img/logo.png" 
@@ -42,7 +40,6 @@ if (!empty($fotoSession) && file_exists($rutaFisica)) {
         <span class="text-xl font-bold tracking-tight text-white font-mono">GastroSoft</span>
     </div>
 
-    <!-- Menú Usuario -->
     <div class="relative">
         <button type="button" 
                 id="btn-usuario-toggle" 
@@ -56,13 +53,13 @@ if (!empty($fotoSession) && file_exists($rutaFisica)) {
                     <?= htmlspecialchars($_SESSION['rol'] ?? 'Invitado') ?>
                 </span>
             </div>
-
+        <!--Foto perfil-->
             <div class="w-10 h-10 rounded-full overflow-hidden border border-[#23324A] bg-[#182338] pointer-events-none">
                 <img src="<?= $avatarImg ?>" class="w-full h-full object-cover" alt="Foto">
             </div>
         </button>
 
-        <!-- Dropdown Desplegable -->
+        <!--Desplegable-->
         <div id="dropdown-usuario-box" 
              class="absolute right-0 mt-2 w-48 bg-[#162032] border border-[#26354D] rounded-xl shadow-2xl py-2 font-mono text-sm"
              style="display: none; z-index: 1000;">
@@ -71,14 +68,12 @@ if (!empty($fotoSession) && file_exists($rutaFisica)) {
             </a>
             <div class="border-t border-[#23324A] my-1"></div>
             <a href="<?php echo APP_URL; ?>?cerrar_sesion=true" class="block px-4 py-2.5 text-rose-400 hover:text-rose-300 hover:bg-rose-950/20 transition font-bold text-xs">
-                Cerrar sesión
+                Cerrar sesion
             </a>
         </div>
     </div>
 </header>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
+<script>    document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-usuario-toggle');
     const menu = document.getElementById('dropdown-usuario-box');
 
@@ -94,5 +89,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
-</script>
+    });</script>

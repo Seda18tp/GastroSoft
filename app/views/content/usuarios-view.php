@@ -29,14 +29,14 @@
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
   
-  <!-- Navegación Admin -->
+  <!--Navegacion-->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
     <div class="flex flex-wrap items-center gap-2">
       <a href="<?php echo APP_URL; ?>admin" class="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
         Volver
       </a>
       <a href="<?php echo APP_URL; ?>estadisticas" class="px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
-        Estadísticas
+        Estadisticas
       </a>
       <a href="<?php echo APP_URL; ?>carta" class="px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
         Carta
@@ -56,7 +56,7 @@
     </button>
   </div>
 
-  <!-- Contenedor Único de Alerta -->
+  <!--ContenedorAlerta -->
   <?php if (isset($alerta) && is_array($alerta)): ?>
     <div class="mb-5 p-3.5 rounded-2xl <?= ($alerta['tipo'] === 'exito') ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/15 border border-rose-500/30 text-rose-300' ?> text-xs flex items-center gap-2 font-mono">
       <span><?= ($alerta['tipo'] === 'exito') ? '✓' : '⚠️' ?></span>
@@ -64,7 +64,7 @@
     </div>
   <?php endif; ?>
 
-  <!-- Tabla de Usuarios -->
+  <!--TablaUsuarios-->
   <div class="bg-[#121929] border border-[#23324A] rounded-2xl shadow-xl overflow-hidden font-mono">
     <table class="w-full text-left text-xs">
       <thead>
@@ -135,7 +135,7 @@
   </div>
 </main>
 
-<!-- Modal Crear / Editar Usuario -->
+<!--Crear/EditarUsuario -->
 <div id="modal-usuario" class="fixed inset-0 bg-[#0A0F1D]/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
   <div class="bg-[#121A2A] border border-[#23324A] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl font-mono">
     
@@ -202,39 +202,4 @@
 
   </div>
 </div>
-
-<script>
-function abrirModalUsuario(u) {
-  const modal = document.getElementById('modal-usuario');
-  const passInput = document.getElementById('form-user-pass');
-  const passHint = document.getElementById('hint-password');
-
-  if (u) {
-    document.getElementById('modal-titulo-usuario').innerText = 'Editar Usuario';
-    document.getElementById('form-user-id').value = u.id;
-    document.getElementById('form-user-nombre').value = u.nombre_completo || u.nombre || '';
-    document.getElementById('form-user-email').value = u.email || '';
-    document.getElementById('form-user-rol').value = u.rol_id || u.id_rol || '';
-    document.getElementById('form-user-estado').value = (u.estado == '1' || u.estado == 'Activo') ? 'Activo' : 'Inactivo';
-    passInput.required = false;
-    passInput.value = '';
-    passHint.classList.remove('hidden');
-  } else {
-    document.getElementById('modal-titulo-usuario').innerText = 'Nuevo Usuario';
-    document.getElementById('form-user-id').value = 0;
-    document.getElementById('form-user-nombre').value = '';
-    document.getElementById('form-user-email').value = '';
-    document.getElementById('form-user-rol').value = '';
-    document.getElementById('form-user-estado').value = 'Activo';
-    passInput.required = true;
-    passInput.value = '';
-    passHint.classList.add('hidden');
-  }
-
-  modal.classList.remove('hidden');
-}
-
-function cerrarModalUsuario() {
-  document.getElementById('modal-usuario').classList.add('hidden');
-}
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

@@ -19,7 +19,7 @@
   <div class="flex items-center justify-between mb-8">
     <div>
       <h2 class="text-xl font-black text-white">Registrar Gasto de Caja</h2>
-      <p class="text-xs text-slate-400 mt-1 font-sans">Salida de efectivo menor o compras de urgencia</p>
+      <p class="text-xs text-slate-400 mt-1 font-sans">Compras de urgencia</p>
     </div>
     <a href="<?php echo APP_URL; ?>caja" class="px-5 py-2 rounded-full font-bold text-xs uppercase bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white transition">
       Volver
@@ -37,7 +37,7 @@
       <input type="hidden" name="modulo_registrar_gasto" value="1">
 
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Concepto / Descripción</label>
+        <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Descripción</label>
         <input type="text" 
                name="descripcion" 
                required 
@@ -46,7 +46,7 @@
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Monto Retirado ($)</label>
+        <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Monto Gastado</label>
         <input type="number" 
                step="any" 
                name="monto" 
@@ -58,7 +58,7 @@
       <div class="pt-4">
         <button type="submit" 
                 class="w-full py-3.5 rounded-full bg-[#EF4444] text-white font-mono text-xs font-extrabold uppercase hover:brightness-110 active:scale-95 transition shadow-lg shadow-[#EF4444]/20 cursor-pointer">
-          Guardar Salida de Dinero
+          Guardar Gasto
         </button>
       </div>
     </form>

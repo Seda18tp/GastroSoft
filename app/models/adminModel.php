@@ -12,7 +12,7 @@ class adminModel extends mainModel {
 
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE estado = 'Ocupada'";
+                     WHERE estado = 'Ocupada' || estado = 'Precuenta'";
         $mesas = $this->ejecutarConsulta($sqlMesas)->fetch()['mesas_ocupadas'] ?? 0;
 
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 
@@ -331,3 +331,4 @@ class adminModel extends mainModel {
         ]);
     }
 }
+?>

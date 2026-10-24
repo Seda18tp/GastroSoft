@@ -20,7 +20,7 @@
 <main class="flex-1 w-full max-w-[1550px] mx-auto p-4 sm:p-6 font-mono select-none flex flex-col lg:flex-row gap-6">
   <section class="flex-1 flex flex-col">
     
-    <!--Ver Historial-->
+    <!--Historial-->
     <div class="mb-6">
       <a href="<?php echo APP_URL; ?>historialPedido" 
          class="inline-block px-5 py-2 rounded-full font-bold text-xs bg-[#182338] text-white hover:bg-[#F59E0B] shadow-md transition">
@@ -28,7 +28,7 @@
       </a>
     </div>
 
-    <!--Comandas-->
+    <!--Pedidos-->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
 
       <?php if (empty($comandas)): ?>
@@ -41,7 +41,7 @@
         ?>
           <div class="bg-[#121A2A] border <?= $enPrep ? 'border-blue-500/50 shadow-blue-500/10' : 'border-[#23324A]' ?> rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between h-[360px] transition-all duration-300">
             
-            <!-- Encabezado de la Tarjeta -->
+            <!--Encabezado-->
             <div class="<?= $enPrep ? 'bg-[#172554]' : 'bg-[#1C283E]' ?> px-4 py-3 border-b border-[#23324A] flex flex-col gap-1 transition-colors">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-extrabold text-white">Mesa #<?= htmlspecialchars($comanda['mesa_numero']) ?></span>
@@ -55,7 +55,7 @@
               </div>
             </div>
 
-            <!--Cuerpo con Platos-->
+            <!--Detalles-->
             <div class="p-4 flex-1 space-y-3 overflow-y-auto">
               <?php if (empty($comanda['items'])): ?>
                 <div class="text-xs text-slate-500 italic">Sin platillos cargados</div>
@@ -76,7 +76,7 @@
               <?php endif; ?>
             </div>
 
-            <!--Botón Dinámico de Estado-->
+            <!--BotónEstado-->
             <div class="p-4 pt-0">
               <form action="" method="POST">
                 <input type="hidden" name="accion_cambiar_estado" value="1">
@@ -86,13 +86,11 @@
                 <input type="hidden" name="mesero_id" value="<?= $comanda['mesero_id'] ?>">
 
                 <?php if (!$enPrep): ?>
-                  <!-- Estado Inicial: En Cocina -> Pasa a En Preparación -->
                   <button type="submit" 
                           class="w-full py-2.5 rounded-full font-mono text-xs font-bold text-center uppercase tracking-wide transition active:scale-95 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/30 cursor-pointer">
                     En Preparación
                   </button>
                 <?php else: ?>
-                  <!-- Estado Segundo: En Preparación -> Pasa a Listo y notifica al mesero -->
                   <button type="submit" 
                           class="w-full py-2.5 rounded-full font-mono text-xs font-bold text-center uppercase tracking-wide transition active:scale-95 bg-greenAccent hover:brightness-110 text-[#0D1322] font-black shadow-lg shadow-emerald-900/30 cursor-pointer">
                     Listo
@@ -121,14 +119,24 @@
     </div>
 
     <div class="space-y-3">
-      <?php if (empty($notificaciones)): ?>
-        <p class="text-xs text-slate-500">Sin notificaciones recientes.</p>
-      <?php else: ?>
-        <?php foreach ($notificaciones as $notif): ?>
-          <div class="h-11 rounded-full bg-[#121A2A] border border-[#23324A] flex items-center px-4 text-xs text-slate-300 hover:border-[#F59E0B]/40 transition cursor-default truncate">
-            <span><?= htmlspecialchars($notif['mensaje']) ?></span>
+      <?php if (!empty($notificaciones)): ?>
+        <?php foreach ($notificaciones as $noti): ?>
+          <div onclick="leerNotificacion(<?= $noti['id'] ?>, this)" 
+              title="Clic para marcar como leída"
+              class="h-11 px-4 rounded-full bg-[#182338] border border-[#2E3F5C] hover:border-[#10B981] flex items-center justify-between font-mono text-xs text-slate-300 transition cursor-pointer group">
+            <span class="truncate pr-3 font-sans group-hover:text-white">
+              <?= htmlspecialchars($noti['mensaje']) ?>
+            </span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="text-[11px] text-slate-400 font-mono"><?= $noti['hora'] ?></span>
+              <span class="text-[10px] text-emerald-400 opacity-0 group-hover:opacity-100 transition">✓</span>
+            </div>
           </div>
         <?php endforeach; ?>
+      <?php else: ?>
+        <div class="h-11 rounded-full bg-[#182338] border border-[#2E3F5C] flex items-center px-4 font-mono text-xs text-slate-400">
+          No hay notificaciones pendientes.
+        </div>
       <?php endif; ?>
     </div>
   </aside>

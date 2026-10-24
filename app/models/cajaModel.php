@@ -2,7 +2,6 @@
 namespace app\models;
 
 class cajaModel extends mainModel {
-    //Obtener mesas con precuenta */
     public function obtenerMesasLiquidacion() {
         $sql = "SELECT 
                     m.id AS mesa_id,
@@ -20,10 +19,8 @@ class cajaModel extends mainModel {
         return $this->ejecutarConsulta($sql);
     }
 
-    // Procesar la liquidación y liberar la mesa
     public function registrarPago($pedido_id, $mesa_id, $metodo_pago, $monto, $monto_recibido, $cambio) {
         try {
-            // 1. Insertar o actualizar registro de pago
             $sqlPago = "INSERT INTO pago (pedido_id, metodo_pago, monto, monto_recibido, cambio, fecha) 
                         VALUES (:pedido_id, :metodo_pago, :monto, :monto_recibido, :cambio, NOW())
                         ON DUPLICATE KEY UPDATE 
@@ -41,11 +38,9 @@ class cajaModel extends mainModel {
                 ':cambio'         => (float)$cambio
             ]);
 
-            // 2. Marcar pedido como Pagado
             $sqlPedido = "UPDATE pedido SET estado = 'Pagado' WHERE id = :pedido_id";
             $this->ejecutarConsulta($sqlPedido, [':pedido_id' => (int)$pedido_id]);
 
-            // 3. Liberar mesa colocándola en estado Libre
             $sqlMesa = "UPDATE mesa SET estado = 'Disponible' WHERE id = :mesa_id";
             $this->ejecutarConsulta($sqlMesa, [':mesa_id' => (int)$mesa_id]);
 
@@ -54,16 +49,13 @@ class cajaModel extends mainModel {
             return false;
         }
     }
-    /* 1. Consultar balance del día actual */
     public function obtenerBalanceTurno() {
-        // Suma de pagos del día
         $sqlVentas = "SELECT COALESCE(SUM(monto), 0) AS total_ventas 
                     FROM pago 
                     WHERE DATE(fecha) = CURDATE()";
         $stmtVentas = $this->ejecutarConsulta($sqlVentas);
         $ventas = (float)($stmtVentas->fetch()['total_ventas'] ?? 0);
 
-        // Suma de gastos del día (con control por si la tabla aún no tiene datos)
         $gastos = 0.0;
         try {
             $sqlGastos = "SELECT COALESCE(SUM(monto), 0) AS total_gastos 
@@ -84,27 +76,10 @@ class cajaModel extends mainModel {
         ];
     }
 
-    /* 2. Guardar registro en la tabla cierre_caja */
     public function registrarCierreCaja($datos) {
-        $sql = "INSERT INTO cierre_caja (
-                    usuario_id, 
-                    fecha, 
-                    monto_ventas, 
-                    monto_gastos, 
-                    monto_esperado, 
-                    monto_real, 
-                    diferencia, 
-                    observaciones
-                ) VALUES (
-                    :usuario_id, 
-                    NOW(), 
-                    :monto_ventas, 
-                    :monto_gastos, 
-                    :monto_esperado, 
-                    :monto_real, 
-                    :diferencia, 
-                    :observaciones
-                )";
+        $sql = "INSERT INTO cierre_caja (usuario_id, fecha, monto_ventas, monto_gastos, 
+                    monto_esperado, monto_real, diferencia, observaciones) VALUES (:usuario_id, 
+                    NOW(), :monto_ventas, :monto_gastos, :monto_esperado, :monto_real, :diferencia, :observaciones)";
 
         return $this->ejecutarConsulta($sql, [
             ':usuario_id'     => $datos['usuario_id'],
@@ -116,7 +91,6 @@ class cajaModel extends mainModel {
             ':observaciones'  => $datos['observaciones']
         ]);
     }
-    /* Registrar una salida de dinero en la tabla gasto */
     public function registrarGasto($datos) {
         $sql = "INSERT INTO gasto (usuario_id, description, monto, fecha) 
                 VALUES (:usuario_id, :description, :monto, NOW())";
@@ -128,3 +102,4 @@ class cajaModel extends mainModel {
         ]);
     }
 }
+?>

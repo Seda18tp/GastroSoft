@@ -1,4 +1,3 @@
-<!--404-->
 <section class="bg-darkBg dark:bg-gray-900 mx-60">
   <div class="container min-h-screen px-6 py-12 mx-auto lg:flex lg:items-center lg:gap-12">
     <div class="wf-ull lg:w-1/2">

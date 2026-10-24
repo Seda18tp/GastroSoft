@@ -13,12 +13,10 @@ class cajaController extends cajaModel {
     $mesa_id         = (int)($_POST['mesa_id'] ?? 0);
     $metodo_pago     = trim($_POST['metodo_pago'] ?? 'Efectivo');
     $monto           = (float)($_POST['total_cuenta'] ?? 0);
-    
-    // Quitar comas y espacios del valor recibido
+
     $recibido_limpio = str_replace([',', ' '], '', $_POST['dinero_recibido'] ?? '0');
     $monto_recibido  = (float)$recibido_limpio;
 
-    // Quitar comas y espacios del cambio calculado
     $cambio_limpio   = str_replace([',', ' '], '', $_POST['cambio_calculado'] ?? '0');
     $cambio          = (float)$cambio_limpio;
 
@@ -29,13 +27,11 @@ class cajaController extends cajaModel {
     header("Location: " . APP_URL . "caja");
     exit();
     }
-    // Procesar cierre de caja
-    /* Devuelve el balance para pintar las tarjetas superiores */
+
     public function obtenerBalanceCierre() {
         return $this->obtenerBalanceTurno();
     }
 
-    /* Procesa el formulario de cierre y persiste en BD */
     public function procesarCierreCaja() {
         $monto_real     = (float)($_POST['monto_real'] ?? 0);
         $ventas         = (float)($_POST['ventas_totales'] ?? 0);
@@ -80,3 +76,4 @@ class cajaController extends cajaModel {
     exit();
     }
 }
+?>

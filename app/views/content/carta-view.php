@@ -9,12 +9,10 @@
 
     $insAdmin = new adminController();
 
-    // Procesar activación/desactivación
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion_cambiar_estado_prod'])) {
         $insAdmin->alternarEstadoProductoControlador();
     }
 
-    // Captura el ID por ?cat= o por url amigable gastrosoft/carta/2
     $catSeleccionada = 0;
     if (isset($_GET['cat']) && is_numeric($_GET['cat'])) {
         $catSeleccionada = (int)$_GET['cat'];
@@ -28,14 +26,14 @@
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
   
-  <!-- Barra de Navegación Admin -->
+  <!--nav-->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
     <div class="flex flex-wrap items-center gap-2">
       <a href="<?php echo APP_URL; ?>admin" class="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
         Volver
       </a>
       <a href="<?php echo APP_URL; ?>estadisticas" class="px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
-        Estadísticas
+        Estadisticas
       </a>
       <a href="<?php echo APP_URL; ?>carta" class="px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#F59E0B] text-[#0D1322] shadow-md shadow-[#F59E0B]/20 transition">
         Carta
@@ -49,11 +47,11 @@
     </div>
 
     <a href="<?php echo APP_URL; ?>nuevoPlato" class="px-5 py-2 rounded-full font-mono text-xs font-bold uppercase tracking-wider bg-[#10B981] text-[#0D1322] hover:brightness-110 shadow-lg shadow-[#10B981]/20 transition">
-      Nuevo Plato
+      + Nuevo Plato
     </a>
   </div>
 
-  <!-- Botones de Filtro de Categorías -->
+  <!--FiltroCategorias-->
   <div class="flex items-center gap-2 mb-8 overflow-x-auto pb-2 font-mono text-xs">
     <button type="button" 
             onclick="filtrarPlatos(0, this)" 
@@ -70,7 +68,7 @@
     <?php endforeach; ?>
   </div>
 
-  <!-- Rejilla de Tarjetas -->
+  <!--Tarjetas-->
   <div id="grid-productos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
     <?php if (empty($productos)): ?>
       <div id="sin-productos" class="col-span-full py-16 text-center text-slate-500 font-mono text-xs">
@@ -85,7 +83,6 @@
             if (strpos($prod['img_url'], 'http') === 0) {
                 $foto = $prod['img_url'];
             } else {
-                // Se concatena directo con APP_URL
                 $foto = APP_URL . "app/img/productos/" . htmlspecialchars($prod['img_url']);
             }
         } else {
@@ -147,43 +144,4 @@
   </div>
 
 </main>
-
-<!-- Filtrado interactivo sin recarga -->
-<script>
-function filtrarPlatos(catId, btn) {
-  // 1. Estilo activo en los botones
-  document.querySelectorAll('.filtro-btn').forEach(b => {
-    b.className = 'filtro-btn px-4 py-1.5 rounded-full font-bold transition bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white';
-  });
-  btn.className = 'filtro-btn px-4 py-1.5 rounded-full font-bold transition bg-[#F59E0B] text-[#0D1322]';
-
-  // 2. Ocultar o mostrar las tarjetas
-  const tarjetas = document.querySelectorAll('.tarjeta-producto');
-  let visibles = 0;
-
-  tarjetas.forEach(t => {
-    const cardCat = parseInt(t.getAttribute('data-categoria'));
-    if (catId === 0 || cardCat === catId) {
-      t.style.display = 'flex';
-      visibles++;
-    } else {
-      t.style.display = 'none';
-    }
-  });
-
-  // 3. Manejar mensaje de lista vacía
-  let aviso = document.getElementById('sin-productos-js');
-  if (visibles === 0) {
-    if (!aviso) {
-      const grid = document.getElementById('grid-productos');
-      aviso = document.createElement('div');
-      aviso.id = 'sin-productos-js';
-      aviso.className = 'col-span-full py-16 text-center text-slate-500 font-mono text-xs';
-      aviso.innerText = 'No hay productos disponibles en esta categoría.';
-      grid.appendChild(aviso);
-    }
-  } else if (aviso) {
-    aviso.remove();
-  }
-}
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

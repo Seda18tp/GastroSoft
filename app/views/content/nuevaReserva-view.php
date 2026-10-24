@@ -21,7 +21,7 @@
   <div class="flex items-center justify-between mb-8">
     <div>
       <h2 class="text-xl font-black text-white">Registrar Reserva</h2>
-      <p class="text-xs text-slate-400 mt-1 font-sans">Agendar mesa y comensales en el restaurante</p>
+      <p class="text-xs text-slate-400 mt-1 font-sans">Agendar mesa en el restaurante</p>
     </div>
     <a href="<?php echo APP_URL; ?>admin" class="px-5 py-2 rounded-full font-bold text-xs uppercase bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white transition">
       Volver

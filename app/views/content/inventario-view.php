@@ -17,7 +17,7 @@
 ?>
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
-  <!-- Navegación Admin -->
+  <!--Nav-->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
     <div class="flex flex-wrap items-center gap-2">
       <a href="<?php echo APP_URL; ?>admin" class="px-5 py-2 rounded-full font-bold text-xs uppercase tracking-wider bg-[#162032] border border-[#26354D] text-[#8A99AD] hover:text-white transition">
@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <!-- Tabla de Inventario -->
+  <!--inventario-->
   <div class="bg-[#121929] border border-[#23324A] rounded-2xl shadow-xl overflow-hidden font-mono">
     <table class="w-full text-left text-xs">
       <thead>
@@ -63,7 +63,6 @@
               $stockActual = (float)$item['stock_actual'];
               $stockMin = (float)$item['stock_minimo'];
 
-              // Cálculo de badge y color según existencias
               if ($stockActual <= 0) {
                   $colorTexto = 'text-rose-500';
                   $badgeClase = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
@@ -111,7 +110,7 @@
   </div>
 </main>
 
-<!-- Modal para Ajustar Stock -->
+<!--Ajustar Stock-->
 <div id="modal-ajuste" class="fixed inset-0 bg-[#0A0F1D]/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
   <div class="bg-[#121A2A] border border-[#23324A] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl font-mono">
     
@@ -163,24 +162,4 @@
 
   </div>
 </div>
-
-<script>
-function abrirModalAjuste(item) {
-  const modal = document.getElementById('modal-ajuste');
-  
-  if (item) {
-    document.getElementById('modal-titulo').innerText = 'Modificar Stock';
-    document.getElementById('form-inventario-id').value = item.inventario_id;
-    document.getElementById('form-producto-nombre').value = item.producto_nombre;
-    document.getElementById('form-stock-actual').value = item.stock_actual;
-    document.getElementById('form-stock-minimo').value = item.stock_minimo;
-    document.getElementById('form-und-medida').value = item.und_medida;
-  }
-  
-  modal.classList.remove('hidden');
-}
-
-function cerrarModalAjuste() {
-  document.getElementById('modal-ajuste').classList.add('hidden');
-}
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

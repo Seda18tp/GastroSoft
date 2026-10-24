@@ -25,7 +25,7 @@
     <a href="<?php echo APP_URL; ?>carta" class="px-5 py-2 rounded-full font-bold text-xs uppercase bg-[#182338] border border-[#26354D] text-slate-300 hover:text-white transition">
       Volver
     </a>
-    <h2 class="text-base font-black text-white">Nuevo Producto</h2>
+    <h2 class="text-base font-black text-white">Nuevo Plato</h2>
   </div>
 
   <div class="bg-[#121A2A] border border-[#23324A] rounded-3xl p-8 shadow-2xl">
@@ -56,7 +56,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Precio de Venta ($)</label>
+          <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Precio de Venta</label>
           <input type="number" step="100" name="precio_venta" required placeholder="Ej: 32000" class="w-full bg-[#182338] border border-[#2E3F5C] rounded-xl px-4 py-2.5 text-white text-xs focus:outline-none focus:border-[#F59E0B]">
         </div>
         <div>
@@ -91,16 +91,4 @@
     </form>
   </div>
 </main>
-
-<script>
-document.getElementById('input-imagen-nuevo').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      document.getElementById('img-preview-nuevo').src = evt.target.result;
-    }
-    reader.readAsDataURL(file);
-  }
-});
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

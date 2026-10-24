@@ -3,10 +3,10 @@
     use app\models\viewsModel;
 
     class viewsController extends viewsModel{
-        /*Controlador obtener vistas*/
-        public function obtenerVistasControlador($vista){
+        //obtener vistas
+        public function obtenerVistas($vista){
             if ($vista!="") {
-                $respuesta=$this->obtenerVistasModelo($vista);
+                $respuesta=$this->obtenerVistasM($vista);
             }else{
                 $respuesta="login";
             }

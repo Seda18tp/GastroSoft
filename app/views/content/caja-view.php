@@ -18,10 +18,10 @@
 
 <main class="flex-1 w-full max-w-[1550px] mx-auto p-4 sm:p-6 font-mono select-none flex flex-col lg:flex-row gap-8">
 
-  <!-- Listado de Mesas -->
+  <!--MesasPrecuenta-->
   <section class="flex-1 flex flex-col">
     
-    <!-- Botones Superiores -->
+    <!--Botones-->
     <div class="flex items-center justify-end gap-3 mb-6">
       <a href="<?php echo APP_URL; ?>cerrarCaja" 
          class="px-6 py-2 rounded-full font-bold text-xs bg-[#162032] border border-[#26354D] text-white hover:bg-[#F59E0B] hover:text-[#0D1322] transition">
@@ -33,7 +33,6 @@
       </a>
     </div>
 
-    <!-- Rejilla de Mesas -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <?php if (empty($mesasPrecuenta)): ?>
         <div class="col-span-full py-24 text-center text-slate-500 text-xs">
@@ -71,10 +70,9 @@
 
   <div class="hidden lg:block w-[1px] bg-[#23324A] self-stretch"></div>
 
-  <!-- Panel Lateral de Liquidación -->
+  <!--PanelLiquidación-->
   <aside class="w-full lg:w-[460px] flex flex-col justify-start">
 
-    <!-- Sin mesa seleccionada -->
     <div id="panel-vacio" class="h-full flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed border-[#23324A] rounded-3xl bg-[#121A2A]/40">
       <div class="w-16 h-16 rounded-full bg-[#182338] flex items-center justify-center text-slate-500 mb-4 text-xl font-bold">
         $
@@ -85,7 +83,6 @@
       </p>
     </div>
 
-    <!-- Formulario de Liquidación -->
     <div id="panel-cobro" class="hidden flex flex-col">
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -108,14 +105,13 @@
         <input type="hidden" name="total_cuenta" id="total_cuenta" value="0">
         <input type="hidden" name="cambio_calculado" id="cambio_calculado" value="0.00">
 
-        <!-- Métodos de Pago -->
+        <!--MetodosPago-->
         <div class="space-y-3 mb-6">
           <?php 
             $metodos = [
               ['id' => 'Efectivo', 'label' => 'Efectivo'],
               ['id' => 'Transferencia', 'label' => 'Transferencia'],
-              ['id' => 'Tarjeta', 'label' => 'Tarjeta'],
-              ['id' => 'Mixta', 'label' => 'Mixta']
+              ['id' => 'Tarjeta', 'label' => 'Tarjeta']
             ];
           ?>
 
@@ -168,7 +164,7 @@
           </div>
         </div>
 
-        <!-- Confirmar Cobro y Liberar Mesa -->
+        <!--cobrary Liberar Mesa -->
         <button type="submit" 
                 class="w-full py-3.5 rounded-full bg-[#10B981] text-[#0D1322] font-mono text-sm font-extrabold uppercase tracking-wider hover:brightness-110 active:scale-95 transition shadow-lg shadow-[#10B981]/20 cursor-pointer">
           Registrar pago
@@ -180,62 +176,4 @@
   </aside>
 
 </main>
-
-<script>
-  function limpiarNumero(valor) {
-    return parseFloat(valor.toString().replace(/,/g, '').replace(/\s/g, '')) || 0;
-  }
-
-  function recalcularCambio(valorStr) {
-    const total = parseFloat(document.getElementById('total_cuenta').value) || 0;
-    const recibido = limpiarNumero(valorStr);
-    const cambio = Math.max(0, recibido - total);
-
-    document.getElementById('texto-cambio').innerText = cambio.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-    document.getElementById('cambio_calculado').value = cambio.toFixed(2);
-  }
-
-  function seleccionarMetodo(metodo) {
-    const total = parseFloat(document.getElementById('total_cuenta').value) || 0;
-    const inputRecibido = document.getElementById('dinero_recibido');
-
-    if (metodo !== 'Efectivo') {
-      inputRecibido.value = total.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
-    recalcularCambio(inputRecibido.value);
-  }
-
-  function seleccionarMesaCobro(mesa, cardElement) {
-    document.getElementById('panel-vacio').classList.add('hidden');
-    document.getElementById('panel-cobro').classList.remove('hidden');
-
-    document.getElementById('titulo-liquidacion').innerText = 'Liquidación Mesa #' + mesa.numero_mesa;
-    document.getElementById('subtitulo-mesero').innerText = 'Mesero: ' + (mesa.mesero_nombre ? mesa.mesero_nombre : 'General');
-    document.getElementById('badge-total-cuenta').innerText = '$ ' + parseInt(mesa.total).toLocaleString('es-CO');
-
-    document.getElementById('form_mesa_id').value = mesa.mesa_id;
-    document.getElementById('form_pedido_id').value = mesa.pedido_id;
-    document.getElementById('total_cuenta').value = mesa.total;
-
-    document.getElementById('dinero_recibido').value = parseFloat(mesa.total).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-    
-    document.getElementById('cambio_calculado').value = "0.00";
-    document.getElementById('texto-cambio').innerText = "0.00";
-
-    document.querySelectorAll('.tarjeta-mesa').forEach(t => {
-      t.classList.remove('ring-2', 'ring-[#10B981]');
-    });
-    if (cardElement) {
-      cardElement.classList.add('ring-2', 'ring-[#10B981]');
-    }
-  }
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>

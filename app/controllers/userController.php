@@ -18,14 +18,13 @@ class userController extends userModel {
             ];
         }
 
-        // 1. Guardar la foto en app/img/perfil/
+        //Guardar foto perfil
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
             $archivoTmp = $_FILES['foto_perfil']['tmp_name'];
             $extension  = strtolower(pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION));
             $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($extension, $permitidos)) {
-                // Ruta absoluta hacia app/img/perfil/
                 $carpetaDestino = dirname(__DIR__) . '/img/perfil/';
                 if (!is_dir($carpetaDestino)) {
                     mkdir($carpetaDestino, 0777, true);
@@ -51,11 +50,9 @@ class userController extends userModel {
             }
         }
 
-        // 2. Actualizar nombre
         $this->actualizarUsuario($usuario_id, $nombre);
         $_SESSION['nombre'] = $nombre;
 
-        // 3. Actualizar contraseña
         if (!empty($clave1) || !empty($clave2)) {
             if ($clave1 !== $clave2) {
                 return [
@@ -79,3 +76,4 @@ class userController extends userModel {
         ];
     }
 }
+?>

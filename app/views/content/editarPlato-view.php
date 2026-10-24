@@ -10,7 +10,6 @@
     $insAdmin = new adminController();
     $categorias = $insAdmin->obtenerCategorias();
 
-    // 1. Ejecutar actualización si se envía el formulario
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['modulo_editar_plato'])) {
         if (method_exists($insAdmin, 'actualizarPlato')) {
             $insAdmin->actualizarPlato();
@@ -19,7 +18,6 @@
         }
     }
 
-    // 2. Capturar ID de la URL
     $id = 0;
     if (isset($url[1]) && is_numeric($url[1])) {
         $id = (int)$url[1];
@@ -34,7 +32,6 @@
         exit();
     }
 
-    // 3. Resolución segura de la imagen actual
     $imgSrc = APP_URL . "app/img/default.png";
     if (!empty($plato['img_url'])) {
         $archivoImg = $plato['img_url'];
@@ -45,7 +42,6 @@
         } elseif (is_file("./app/img/productos/" . $archivoImg)) {
             $imgSrc = APP_URL . "app/img/productos/" . $archivoImg;
         } else {
-            // Forzar ruta en views por si is_file no tiene permiso relativo
             $imgSrc = APP_URL . "app/views/img/productos/" . $archivoImg;
         }
     }
@@ -84,7 +80,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Precio de Venta ($)</label>
+          <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Precio de Venta</label>
           <input type="number" step="100" name="precio_venta" required value="<?= (float)$plato['precio_venta'] ?>" class="w-full bg-[#182338] border border-[#2E3F5C] rounded-xl px-4 py-2.5 text-white text-xs focus:outline-none focus:border-[#F59E0B]">
         </div>
         <div>
@@ -101,7 +97,6 @@
         <textarea name="descripcion" rows="3" class="w-full bg-[#182338] border border-[#2E3F5C] rounded-xl px-4 py-2.5 text-white text-xs focus:outline-none focus:border-[#F59E0B] font-sans"><?= htmlspecialchars($plato['descripcion'] ?? '') ?></textarea>
       </div>
 
-      <!-- Selector de Foto con Vista Previa -->
       <div class="pt-2">
         <label class="block text-xs font-bold text-slate-300 mb-2 uppercase">Foto del Producto</label>
         <div class="flex items-center gap-4">
@@ -125,17 +120,4 @@
     </form>
   </div>
 </main>
-
-<script>
-// Actualizar la previsualización al elegir un archivo nuevo
-document.getElementById('input-imagen').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      document.getElementById('img-preview').src = evt.target.result;
-    }
-    reader.readAsDataURL(file);
-  }
-});
-</script>
+<?php require_once "./app/views/inc/script.php"; ?>
