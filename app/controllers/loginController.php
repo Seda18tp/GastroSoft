@@ -43,7 +43,9 @@ class loginController extends loginModel {
                     session_start();
                 }
 
-                session_regenerate_id(true);
+                if (!headers_sent()) {
+                    session_regenerate_id(true);
+                }
 
                 $_SESSION['id_usuario']  = $user['id'];
                 $_SESSION['nombre']      = $user['nombre_completo'];
