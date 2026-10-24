@@ -35,7 +35,7 @@ require_once __DIR__ . "/app/views/inc/session_start.php";
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <?php require_once "./app/views/inc/head.php"; ?>
+    <?php require_once __DIR__ . "/app/views/inc/head.php"; ?>
 </head>
 <body class="bg-[#0D1322] text-slate-100 min-h-screen flex flex-col font-sans">
     <?php
@@ -45,20 +45,20 @@ require_once __DIR__ . "/app/views/inc/session_start.php";
         $vista = $viewsController->obtenerVistas($url[0]);
 
         if ($vista == "login" || $vista == "404") {
-            require_once "./app/views/content/" . $vista . "-view.php";
+            require_once __DIR__ . "/app/views/content/" . $vista . "-view.php";
         } else {
     ?>
     <main class="page-container flex-1 flex flex-col">
 
-        <?php require_once "./app/views/inc/navbar.php"; ?>     
+        <?php require_once __DIR__ . "/app/views/inc/navbar.php"; ?>     
 
         <section class="full-width pageContent scroll flex-1" id="pageContent">
             <?php 
                 require_once $vista;
             ?>
         </section>
-        <?php require_once "./app/views/inc/footer.php"; ?>
-        <?php require_once "./app/views/inc/script.php"; ?>
+        <?php require_once __DIR__ . "/app/views/inc/footer.php"; ?>
+        <?php require_once __DIR__ . "/app/views/inc/script.php"; ?>
 
     </main>
     <?php
