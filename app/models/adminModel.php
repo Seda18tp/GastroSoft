@@ -291,6 +291,9 @@ class adminModel extends mainModel {
     }
 
     public function registrarReserva($datos) {
+        $conexion = $this->conectar();
+
+        // 1. Insertar la reserva
         $sql = "INSERT INTO reserva (
                     mesa_id, 
                     nombre_cliente, 
@@ -313,7 +316,8 @@ class adminModel extends mainModel {
                     :observaciones
                 )";
 
-        return $this->ejecutarConsulta($sql, [
+        $stmt = $conexion->prepare($sql);
+        $res = $stmt->execute([
             ':mesa_id'           => (int)$datos['mesa_id'],
             ':nombre_cliente'    => $datos['nombre_cliente'],
             ':telefono'          => $datos['telefono'],
@@ -324,13 +328,45 @@ class adminModel extends mainModel {
             ':estado'            => $datos['estado'] ?? 'Confirmada',
             ':observaciones'     => $datos['observaciones']
         ]);
+
+        // 2. Cambiar el estado de la mesa a 'Reservada'
+        if ($res) {
+            $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Reservada' WHERE id = :mesa_id");
+            $stmtMesa->execute([':mesa_id' => (int)$datos['mesa_id']]);
+        }
+
+        return $res;
     }
 
     public function cambiarEstadoReserva($reserva_id, $nuevo_estado) {
+        $conexion = $this->conectar();
+
+        // 1. Obtener la mesa_id vinculada a esta reserva antes de actualizar
+        $stmtMesaId = $conexion->prepare("SELECT mesa_id FROM reserva WHERE id = :id LIMIT 1");
+        $stmtMesaId->execute([':id' => (int)$reserva_id]);
+        $mesaId = (int)($stmtMesaId->fetch(\PDO::FETCH_ASSOC)['mesa_id'] ?? 0);
+
+        // 2. Actualizar el estado de la reserva
         $sql = "UPDATE reserva SET estado = :estado WHERE id = :id";
-        return $this->ejecutarConsulta($sql, [
+        $stmt = $conexion->prepare($sql);
+        $res = $stmt->execute([
             ':estado' => trim($nuevo_estado),
             ':id'     => (int)$reserva_id
         ]);
+
+        // 3. Si la reserva se cancela o finaliza, liberar la mesa a 'Disponible'; si vuelve a 'Confirmada', marcarla 'Reservada'
+        if ($res && $mesaId > 0) {
+            $estadoNormalizado = strtolower(trim($nuevo_estado));
+            
+            if ($estadoNormalizado === 'cancelada' || $estadoNormalizado === 'finalizada') {
+                $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Disponible' WHERE id = :mesa_id");
+                $stmtMesa->execute([':mesa_id' => $mesaId]);
+            } elseif ($estadoNormalizado === 'confirmada') {
+                $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Reservada' WHERE id = :mesa_id");
+                $stmtMesa->execute([':mesa_id' => $mesaId]);
+            }
+        }
+
+        return $res;
     }
 }

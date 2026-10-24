@@ -54,6 +54,7 @@
             <option value="estado:disponible">Disponible</option>
             <option value="estado:ocupada">Ocupada</option>
             <option value="estado:precuenta">Precuenta</option>
+            <option value="estado:reservada">Reservada</option>
           </optgroup>
         </select>
       </div>
@@ -70,6 +71,9 @@
             } elseif ($estado === 'ocupada') {
                 $colorClase = 'bg-[#121A2A] text-rose-400 border-rose-500/40';
                 $labelEstado = 'OCUPADA';
+            } elseif ($estado === 'reservada') {
+                $colorClase = 'bg-[#121A2A] text-sky-400 border-sky-500/40';
+                $labelEstado = 'RESERVADA';
             } else {
                 $colorClase = 'bg-[#121A2A] text-[#10B981] border-[#23324A] hover:border-[#10B981]';
                 $labelEstado = 'DISPONIBLE';
