@@ -6,6 +6,7 @@ require_once __DIR__ . "/autoload.php";
 require_once __DIR__ . "/config/conexion.php";
 require_once __DIR__ . "/app/views/inc/session_start.php";
 
+// Manejo de cierre de sesión
 if (isset($_GET['cerrar_sesion'])) {
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
@@ -25,11 +26,21 @@ if (isset($_GET['cerrar_sesion'])) {
     exit();
 }
 
-if (isset($_GET['views'])) {
-    $url = explode("/", $_GET['views']);
+// 1. Obtener la ruta solicitada (Compatible con Local y Vercel)
+if (isset($_GET['views']) && !empty($_GET['views'])) {
+    $ruta = $_GET['views'];
 } else {
-    $url = ["login"];
+    // Si Vercel no reescribió $_GET['views'], leerlo directamente de REQUEST_URI
+    $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    $uri = trim($uri, '/');
+    
+    // Si corre en subcarpeta local (ej: /gastrosoft/mesero), remover el prefijo
+    $uri = preg_replace('#^gastrosoft/?#i', '', $uri);
+    
+    $ruta = !empty($uri) ? $uri : "login";
 }
+
+$url = explode("/", $ruta);
 
 use app\controllers\viewsController;
 
