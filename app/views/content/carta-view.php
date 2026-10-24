@@ -77,14 +77,15 @@
     <?php else: ?>
     <?php foreach ($productos as $prod): 
         $activo = (strtolower(trim($prod['estado'] ?? '')) === 'activo');
-        
+        $imgBd  = trim($prod['img_url'] ?? '');
 
-        if (!empty($prod['img_url'])) {
-            if (strpos($prod['img_url'], 'http') === 0) {
-                $foto = $prod['img_url'];
-            } else {
-                $foto = APP_URL . "app/img/productos/" . htmlspecialchars($prod['img_url']);
-            }
+        // Soporte completo: Base64, URL externa, archivo local o default
+        if (str_starts_with($imgBd, 'data:image/')) {
+            $foto = $imgBd;
+        } elseif (str_starts_with($imgBd, 'http://') || str_starts_with($imgBd, 'https://')) {
+            $foto = $imgBd;
+        } elseif (!empty($imgBd) && file_exists(dirname(__DIR__, 2) . '/img/productos/' . $imgBd)) {
+            $foto = APP_URL . "app/img/productos/" . htmlspecialchars($imgBd);
         } else {
             $foto = APP_URL . "app/img/default.png";
         }

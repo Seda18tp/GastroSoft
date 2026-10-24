@@ -175,23 +175,16 @@ class adminController extends adminModel {
 
         $nombreImagen = $imagenActual;
 
+        // Si se subió una nueva imagen, procesarla en Base64
         if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
             $extension = strtolower(pathinfo($_FILES['imagen']['name'], PATHINFO_EXTENSION));
             $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($extension, $permitidos)) {
-                $carpeta = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'productos' . DIRECTORY_SEPARATOR;
-                if (!is_dir($carpeta)) {
-                    @mkdir($carpeta, 0777, true);
-                }
-
-                $nuevoNombre = md5(uniqid(rand(), true)) . "." . $extension;
-
-                if (move_uploaded_file($_FILES['imagen']['tmp_name'], $carpeta . $nuevoNombre)) {
-                    if (!empty($imagenActual) && is_file($carpeta . $imagenActual)) {
-                        @unlink($carpeta . $imagenActual);
-                    }
-                    $nombreImagen = $nuevoNombre;
+                if ($_FILES['imagen']['size'] <= 1500000) { // Máximo 1.5MB
+                    $tipoMime = ($extension === 'jpg') ? 'jpeg' : $extension;
+                    $contenidoBinario = file_get_contents($_FILES['imagen']['tmp_name']);
+                    $nombreImagen = 'data:image/' . $tipoMime . ';base64,' . base64_encode($contenidoBinario);
                 }
             }
         }
@@ -206,10 +199,16 @@ class adminController extends adminModel {
             'estado'       => $estado
         ];
 
-        $this->actualizarProducto($datos);
-
-        echo "<script>window.location.replace('" . APP_URL . "carta');</script>";
-        exit();
+        try {
+            $this->actualizarProducto($datos);
+            echo "<script>window.location.href = '" . APP_URL . "carta';</script>";
+            exit();
+        } catch (\Throwable $e) {
+            return [
+                "tipo"  => "error",
+                "texto" => "Error al actualizar el plato: " . $e->getMessage()
+            ];
+        }
     }
 
     public function resolverUrlImagen($imagen) {

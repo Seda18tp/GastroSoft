@@ -34,15 +34,14 @@
 
     $imgSrc = APP_URL . "app/img/default.png";
     if (!empty($plato['img_url'])) {
-        $archivoImg = $plato['img_url'];
-        if (strpos($archivoImg, 'http') === 0) {
+        $archivoImg = trim($plato['img_url']);
+
+        if (str_starts_with($archivoImg, 'data:image/')) {
             $imgSrc = $archivoImg;
-        } elseif (is_file("./app/views/img/productos/" . $archivoImg)) {
-            $imgSrc = APP_URL . "app/views/img/productos/" . $archivoImg;
-        } elseif (is_file("./app/img/productos/" . $archivoImg)) {
+        } elseif (str_starts_with($archivoImg, 'http://') || str_starts_with($archivoImg, 'https://')) {
+            $imgSrc = $archivoImg;
+        } elseif (file_exists(dirname(__DIR__, 2) . '/img/productos/' . $archivoImg)) {
             $imgSrc = APP_URL . "app/img/productos/" . $archivoImg;
-        } else {
-            $imgSrc = APP_URL . "app/views/img/productos/" . $archivoImg;
         }
     }
 ?>
