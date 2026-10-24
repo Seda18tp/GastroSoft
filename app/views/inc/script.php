@@ -63,13 +63,13 @@
     });
     //miPerfil
     function previewImg(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-        document.getElementById('img-vista-previa').src = e.target.result;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('img-vista-previa').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
         }
-        reader.readAsDataURL(input.files[0]);
-    }
     }
     //inventario
     function abrirModalAjuste(item) {
