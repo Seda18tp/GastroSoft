@@ -4,35 +4,40 @@ namespace app\models;
 class adminModel extends mainModel {
 
     public function obtenerMetricas() {
-        // Ventas del día con casteo numérico y de fecha
+        // 1. Ventas del día
         $sqlVentas = "SELECT COALESCE(SUM(total::numeric), 0) AS total_ventas 
                       FROM pedido 
                       WHERE fecha::date = CURRENT_DATE 
                         AND LOWER(estado::text) = 'pagado'";
-        $ventas = $this->ejecutarConsulta($sqlVentas)->fetch()['total_ventas'] ?? 0;
+        $stmtVentas = $this->ejecutarConsulta($sqlVentas);
+        $ventas = (float)($stmtVentas->fetch()['total_ventas'] ?? 0);
 
-        // Mesas ocupadas o en precuenta
+        // 2. Mesas ocupadas o en precuenta
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta','reservada')";
-        $mesas = $this->ejecutarConsulta($sqlMesas)->fetch()['mesas_ocupadas'] ?? 0;
+                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta')";
+        $stmtMesas = $this->ejecutarConsulta($sqlMesas);
+        $mesas = (int)($stmtMesas->fetch()['mesas_ocupadas'] ?? 0);
 
-        // Total pedidos hoy
+        // 3. Total pedidos hoy
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 
                        FROM pedido 
                        WHERE fecha::date = CURRENT_DATE";
-        $pedidos = $this->ejecutarConsulta($sqlPedidos)->fetch()['total_pedidos'] ?? 0;
+        $stmtPedidos = $this->ejecutarConsulta($sqlPedidos);
+        $pedidos = (int)($stmtPedidos->fetch()['total_pedidos'] ?? 0);
 
-        $sqlStock = "SELECT COUNT(*) AS alertaStock 
+        // 4. Alertas de stock (Casteo explícito, alias en minúsculas y control de nulos)
+        $sqlStock = "SELECT COUNT(*) AS total_alertas 
                      FROM inventario 
-                     WHERE stock_actual::numeric <= stock_minimo::numeric";
-        $alertasStock = $this->ejecutarConsulta($sqlStock)->fetch()['alertaStock'] ?? 0;
+                     WHERE COALESCE(stock_actual::numeric, 0) <= COALESCE(stock_minimo::numeric, 0)";
+        $stmtStock = $this->ejecutarConsulta($sqlStock);
+        $alertasStock = (int)($stmtStock->fetch()['total_alertas'] ?? 0);
 
         return [
             'ventas_dia'     => $ventas,
             'mesas_ocupadas' => $mesas,
             'total_pedidos'  => $pedidos,
-            'alertas_stock'  => (int)$alertasStock
+            'alertas_stock'  => $alertasStock
         ];
     }
 

@@ -64,8 +64,8 @@ $reservas = $insAdmin->obtenerReservasDia();
     <!--AlertaStock-->
     <div class="bg-[#121A2A] border border-[#23324A] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
       <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">ALERTAS STOCK:</span>
-      <span class="text-2xl font-black <?= $metricas['alertas_stock'] > 0 ? 'text-rose-500' : 'text-slate-400' ?> mt-2">
-        <?= $metricas['alertas_stock'] ?>
+      <span class="text-2xl font-black <?= ($metricas['alertas_stock'] ?? 0) > 0 ? 'text-rose-500' : 'text-slate-400' ?> mt-2">
+        <?= (int)($metricas['alertas_stock'] ?? 0) ?>
       </span>
     </div>
 
