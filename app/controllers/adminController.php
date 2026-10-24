@@ -73,12 +73,12 @@ class adminController extends adminModel {
         return $consulta ? $consulta->fetchAll() : [];
     }
 
-    public function obtenerProductosCartaControlador($categoria_id = 0) {
+    public function obtenerProductosCarta($categoria_id = 0) {
         $consulta = $this->listarProductosCarta($categoria_id);
         return $consulta ? $consulta->fetchAll() : [];
     }
 
-    public function alternarEstadoProductoControlador() {
+    public function alternarEstadoProducto() {
         $id = (int)($_POST['producto_id'] ?? 0);
         $estadoActual = trim($_POST['estado_actual'] ?? '');
 
@@ -127,13 +127,9 @@ class adminController extends adminModel {
             $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($extension, $permitidos)) {
-                $carpetaDestino = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'productos' . DIRECTORY_SEPARATOR;
-                if (!is_dir($carpetaDestino)) {
-                    @mkdir($carpetaDestino, 0777, true);
-                }
-
-                $nombreImagen = md5(uniqid(rand(), true)) . "." . $extension;
-                move_uploaded_file($_FILES['imagen']['tmp_name'], $carpetaDestino . $nombreImagen);
+                $tipoMime = ($extension === 'jpg') ? 'jpeg' : $extension;
+                $contenidoBinario = file_get_contents($_FILES['imagen']['tmp_name']);
+                $nombreImagen = 'data:image/' . $tipoMime . ';base64,' . base64_encode($contenidoBinario);
             }
         }
 

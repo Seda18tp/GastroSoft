@@ -10,7 +10,7 @@
     $insAdmin = new adminController();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion_cambiar_estado_prod'])) {
-        $insAdmin->alternarEstadoProductoControlador();
+        $insAdmin->alternarEstadoProducto();
     }
 
     $catSeleccionada = 0;
@@ -21,7 +21,7 @@
     }
 
     $categorias = $insAdmin->obtenerCategorias();
-    $productos = $insAdmin->obtenerProductosCartaControlador($catSeleccionada);
+    $productos = $insAdmin->obtenerProductosCarta($catSeleccionada);
 ?>
 
 <main class="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full font-sans select-none">
