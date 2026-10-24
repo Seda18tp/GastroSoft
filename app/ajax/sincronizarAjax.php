@@ -6,14 +6,13 @@ ini_set('display_errors', '0');
 error_reporting(E_ALL);
 
 $raiz = dirname(__DIR__, 2);
-require_once $raiz . "/config/server.php";
+require_once $raiz . "/config/conexion.php";
 require_once $raiz . "/config/app.php";
 require_once $raiz . "/autoload.php";
 
 try {
     $db = new \app\models\mainModel();
 
-    // STRING_AGG es el equivalente nativo en PostgreSQL para GROUP_CONCAT
     $sql = "SELECT 
                 (SELECT COUNT(*) FROM pedido WHERE LOWER(estado::text) NOT IN ('pagado', 'cancelado')) AS pedidos_activos,
                 (SELECT STRING_AGG(id || ':' || estado, '|' ORDER BY id) FROM pedido WHERE LOWER(estado::text) NOT IN ('pagado', 'cancelado')) AS estados_pedidos,
@@ -21,7 +20,8 @@ try {
                 (SELECT MAX(id) FROM notificacion) AS ultima_notif,
                 (SELECT COUNT(*) FROM notificacion) AS total_notif,
                 (SELECT MAX(id) FROM detalle_pedido) AS ultimo_detalle,
-                (SELECT COUNT(*) FROM detalle_pedido) AS total_detalles";
+                (SELECT COUNT(*) FROM detalle_pedido) AS total_detalles,
+                (SELECT SUM(stock_actual::numeric) FROM inventario) AS balance_stock";
 
     $stmt = $db->ejecutarConsulta($sql);
     $data = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : [];

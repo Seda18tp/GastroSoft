@@ -1,17 +1,18 @@
-<footer class="w-full bg-[#121929] border-t border-cardBorder px-8 py-5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
-    
-    <div class="flex ml-auto">
+<footer class="w-full bg-[#121929] border-t border-[#23324A] px-8 py-5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+    <div class="flex ml-auto font-mono">
         Copyright &copy; 2026 GastroSoft. Todos los derechos reservados.
     </div>
 </footer>
+
 <script>
     let versionSistemaActual = null;
 
     function verificarCambiosSistema() {
-        const modalAbierto = document.querySelector('#modal-agregar-plato:not(.hidden)');
-        const tieneBorradorPendiente = typeof comandaBorrador !== 'undefined' && comandaBorrador.length > 0;
+        const algunModalAbierto = document.querySelector('.fixed:not(.hidden)');
+        const inputsActivos = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT');
+        const tieneBorradorMesero = typeof comandaBorrador !== 'undefined' && comandaBorrador.length > 0;
 
-        if (modalAbierto || tieneBorradorPendiente) {
+        if (algunModalAbierto || inputsActivos || tieneBorradorMesero) {
             return;
         }
 
@@ -21,16 +22,11 @@
                 return res.json();
             })
             .then(data => {
-                if (!data || !data.version) {
-                    console.warn("Respuesta sin versión:", data);
-                    return;
-                }
+                if (!data || !data.version) return;
 
                 if (versionSistemaActual === null) {
                     versionSistemaActual = data.version;
-                    console.log("Sincronizador activo. Versión inicial:", versionSistemaActual);
                 } else if (versionSistemaActual !== data.version) {
-                    console.log("Cambio detectado en base de datos. Actualizando...");
                     versionSistemaActual = data.version;
 
                     const urlParams = new URLSearchParams(window.location.search);
@@ -46,7 +42,7 @@
                 }
             })
             .catch(err => {
-                console.error("Error al consultar sincronizarAjax.php:", err);
+                console.error("Sincronizador en pausa:", err);
             });
     }
 

@@ -18,14 +18,13 @@ class userController extends userModel {
             ];
         }
 
-        // Procesar foto de perfil mediante Base64 (Compatible con Vercel Read-Only)
         if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
             $archivoTmp = $_FILES['foto_perfil']['tmp_name'];
             $extension  = strtolower(pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION));
             $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($extension, $permitidos)) {
-                // Limitar tamaño a 2MB para optimizar la base de datos
+
                 if ($_FILES['foto_perfil']['size'] > 2 * 1024 * 1024) {
                     return [
                         "tipo"  => "error",
@@ -37,7 +36,7 @@ class userController extends userModel {
                 $tipoMime = ($extension === 'jpg') ? 'jpeg' : $extension;
                 $imagenBase64 = 'data:image/' . $tipoMime . ';base64,' . base64_encode($contenidoBinario);
 
-                // Guardar la cadena Base64 en la base de datos
+
                 $this->actualizarFotoPerfil($usuario_id, $imagenBase64);
                 $_SESSION['foto_perfil'] = $imagenBase64;
             } else {

@@ -6,7 +6,6 @@ require_once __DIR__ . "/autoload.php";
 require_once __DIR__ . "/config/conexion.php";
 require_once __DIR__ . "/app/views/inc/session_start.php";
 
-// Cerrar sesión solo cuando el parámetro GET esté explícitamente seteado
 if (isset($_GET['cerrar_sesion']) && $_GET['cerrar_sesion'] === 'true') {
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
@@ -26,7 +25,7 @@ if (isset($_GET['cerrar_sesion']) && $_GET['cerrar_sesion'] === 'true') {
     exit();
 }
 
-// Detección robusta de la ruta actual
+
 if (isset($_GET['views']) && !empty($_GET['views'])) {
     $ruta = $_GET['views'];
 } else {
@@ -43,14 +42,12 @@ use app\controllers\viewsController;
 $viewsController = new viewsController();
 $vista = $viewsController->obtenerVistas($url[0]);
 
-// Si el usuario no ha iniciado sesión y la vista no es pública, redirigir a login
 $vistasPublicas = ['login', '404'];
 if (!isset($_SESSION['id_usuario']) && !in_array($vista, $vistasPublicas)) {
     header("Location: " . APP_URL . "login");
     exit();
 }
 
-// Si ya tiene sesión activa y visita login, enviarlo a su rol
 if (isset($_SESSION['id_usuario']) && $vista === 'login') {
     $rol = strtolower($_SESSION['rol'] ?? '');
     $destino = match ($rol) {

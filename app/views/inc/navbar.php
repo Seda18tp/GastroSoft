@@ -22,7 +22,6 @@ if (!isset($_SESSION['id_usuario'])) {
     exit();
 }
 
-// Resolver foto de perfil (Soporta Base64, URL externa o Default)
 $fotoSession = trim($_SESSION['foto_perfil'] ?? '');
 
 if (str_starts_with($fotoSession, 'data:image/')) {

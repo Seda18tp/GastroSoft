@@ -79,7 +79,6 @@
         $activo = (strtolower(trim($prod['estado'] ?? '')) === 'activo');
         $imgBd  = trim($prod['img_url'] ?? '');
 
-        // Soporte completo: Base64, URL externa, archivo local o default
         if (str_starts_with($imgBd, 'data:image/')) {
             $foto = $imgBd;
         } elseif (str_starts_with($imgBd, 'http://') || str_starts_with($imgBd, 'https://')) {

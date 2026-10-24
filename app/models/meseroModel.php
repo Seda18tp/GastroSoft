@@ -107,6 +107,12 @@ class meseroModel extends mainModel {
                        VALUES (:pedido_id, :producto_id, :cantidad, :precio, :subtotal, :notas, 'Pendiente'::estado_detalle)";
         $stmtDetalle = $conexion->prepare($sqlDetalle);
 
+        $sqlInventario = "UPDATE inventario 
+                          SET stock_actual = GREATEST(0, stock_actual::numeric - :cantidad),
+                              actualizado_en = CURRENT_TIMESTAMP 
+                          WHERE producto_id = :producto_id";
+        $stmtInventario = $conexion->prepare($sqlInventario);
+
         foreach ($items as $it) {
             $prod_id  = (int)($it['producto_id'] ?? 0);
             $cant     = (int)($it['cantidad'] ?? 1);
@@ -122,6 +128,11 @@ class meseroModel extends mainModel {
                     ':precio'      => $precio,
                     ':subtotal'    => $subtotal,
                     ':notas'       => $notas
+                ]);
+
+                $stmtInventario->execute([
+                    ':cantidad'    => $cant,
+                    ':producto_id' => $prod_id
                 ]);
             }
         }

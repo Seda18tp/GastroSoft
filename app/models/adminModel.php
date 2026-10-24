@@ -4,7 +4,6 @@ namespace app\models;
 class adminModel extends mainModel {
 
     public function obtenerMetricas() {
-        // 1. Ventas del día
         $sqlVentas = "SELECT COALESCE(SUM(total::numeric), 0) AS total_ventas 
                       FROM pedido 
                       WHERE fecha::date = CURRENT_DATE 
@@ -12,21 +11,18 @@ class adminModel extends mainModel {
         $stmtVentas = $this->ejecutarConsulta($sqlVentas);
         $ventas = (float)($stmtVentas->fetch()['total_ventas'] ?? 0);
 
-        // 2. Mesas ocupadas o en precuenta
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta')";
+                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta',reservada')";
         $stmtMesas = $this->ejecutarConsulta($sqlMesas);
         $mesas = (int)($stmtMesas->fetch()['mesas_ocupadas'] ?? 0);
-
-        // 3. Total pedidos hoy
++
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 
                        FROM pedido 
                        WHERE fecha::date = CURRENT_DATE";
         $stmtPedidos = $this->ejecutarConsulta($sqlPedidos);
         $pedidos = (int)($stmtPedidos->fetch()['total_pedidos'] ?? 0);
 
-        // 4. Alertas de stock (Casteo explícito, alias en minúsculas y control de nulos)
         $sqlStock = "SELECT COUNT(*) AS total_alertas 
                      FROM inventario 
                      WHERE COALESCE(stock_actual::numeric, 0) <= COALESCE(stock_minimo::numeric, 0)";
@@ -298,7 +294,6 @@ class adminModel extends mainModel {
     public function registrarReserva($datos) {
         $conexion = $this->conectar();
 
-        // 1. Insertar la reserva
         $sql = "INSERT INTO reserva (
                     mesa_id, 
                     nombre_cliente, 
@@ -334,7 +329,6 @@ class adminModel extends mainModel {
             ':observaciones'     => $datos['observaciones']
         ]);
 
-        // 2. Cambiar el estado de la mesa a 'Reservada'
         if ($res) {
             $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Reservada' WHERE id = :mesa_id");
             $stmtMesa->execute([':mesa_id' => (int)$datos['mesa_id']]);
@@ -346,12 +340,10 @@ class adminModel extends mainModel {
     public function cambiarEstadoReserva($reserva_id, $nuevo_estado) {
         $conexion = $this->conectar();
 
-        // 1. Obtener la mesa_id vinculada a esta reserva antes de actualizar
         $stmtMesaId = $conexion->prepare("SELECT mesa_id FROM reserva WHERE id = :id LIMIT 1");
         $stmtMesaId->execute([':id' => (int)$reserva_id]);
         $mesaId = (int)($stmtMesaId->fetch(\PDO::FETCH_ASSOC)['mesa_id'] ?? 0);
 
-        // 2. Actualizar el estado de la reserva
         $sql = "UPDATE reserva SET estado = :estado WHERE id = :id";
         $stmt = $conexion->prepare($sql);
         $res = $stmt->execute([
@@ -359,7 +351,6 @@ class adminModel extends mainModel {
             ':id'     => (int)$reserva_id
         ]);
 
-        // 3. Si la reserva se cancela o finaliza, liberar la mesa a 'Disponible'; si vuelve a 'Confirmada', marcarla 'Reservada'
         if ($res && $mesaId > 0) {
             $estadoNormalizado = strtolower(trim($nuevo_estado));
             

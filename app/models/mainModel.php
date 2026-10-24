@@ -4,7 +4,6 @@ use \PDO;
 
 class mainModel {
 
-    // Conexión a PostgreSQL (Supabase)
     protected function conectar() {
         $servidor  = getenv('DB_SERVER') ?: (defined('DB_SERVER') ? DB_SERVER : '');
         $baseDatos = getenv('DB_NAME') ?: (defined('DB_NAME') ? DB_NAME : 'postgres');
@@ -17,8 +16,13 @@ class mainModel {
         $conexion = new PDO($dsn, $usuario, $clave, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::PGSQL_ATTR_DISABLE_PREPARES => true,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET timezone TO 'America/Bogota'" 
         ]);
+
+
+        $conexion->exec("SET timezone TO 'America/Bogota'");
 
         return $conexion;
     }
