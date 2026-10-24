@@ -127,9 +127,12 @@ class adminController extends adminModel {
             $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($extension, $permitidos)) {
-                $tipoMime = ($extension === 'jpg') ? 'jpeg' : $extension;
-                $contenidoBinario = file_get_contents($_FILES['imagen']['tmp_name']);
-                $nombreImagen = 'data:image/' . $tipoMime . ';base64,' . base64_encode($contenidoBinario);
+                // Si la imagen supera 1.5MB, no procesar para no saturar la petición en Vercel
+                if ($_FILES['imagen']['size'] <= 1500000) {
+                    $tipoMime = ($extension === 'jpg') ? 'jpeg' : $extension;
+                    $contenidoBinario = file_get_contents($_FILES['imagen']['tmp_name']);
+                    $nombreImagen = 'data:image/' . $tipoMime . ';base64,' . base64_encode($contenidoBinario);
+                }
             }
         }
 
@@ -142,10 +145,16 @@ class adminController extends adminModel {
             'estado'       => $estado
         ];
 
-        $this->registrarProducto($datos);
-
-        echo "<script>window.location.replace('" . APP_URL . "carta');</script>";
-        exit();
+        try {
+            $this->registrarProducto($datos);
+            echo "<script>window.location.href = '" . APP_URL . "carta';</script>";
+            exit();
+        } catch (\Throwable $e) {
+            return [
+                "tipo"  => "error",
+                "texto" => "Error al guardar el plato: " . $e->getMessage()
+            ];
+        }
     }
 
     public function actualizarPlato() {
@@ -294,7 +303,6 @@ class adminController extends adminModel {
                     'estado'   => $estado
                 ];
                 $this->registrarUsuario($datos);
-                $mensaje = "Usuario creado exitosamente.";
             } else {
                 $datos = [
                     'id'       => $usuario_id,
@@ -305,23 +313,14 @@ class adminController extends adminModel {
                     'password' => !empty($clave) ? password_hash($clave, PASSWORD_BCRYPT) : ''
                 ];
                 $this->actualizarUsuario($datos);
-                $mensaje = "Usuario actualizado exitosamente.";
             }
 
-            return [
-                "tipo"  => "exito",
-                "texto" => $mensaje
-            ];
-        } catch (\PDOException $e) {
-            if ($e->getCode() == 23000) {
-                return [
-                    "tipo"  => "error",
-                    "texto" => "El correo ya está registrado en el sistema."
-                ];
-            }
+            echo "<script>window.location.href = '" . APP_URL . "usuarios';</script>";
+            exit();
+        } catch (\Throwable $e) {
             return [
                 "tipo"  => "error",
-                "texto" => "Error al procesar: " . $e->getMessage()
+                "texto" => "Error al registrar el usuario: " . $e->getMessage()
             ];
         }
     }
@@ -378,10 +377,13 @@ class adminController extends adminModel {
             'observaciones'     => $observaciones
         ];
 
-        $this->registrarReserva($datos);
-
-        echo "<script>window.location.replace('" . APP_URL . "admin');</script>";
-        exit();
+        try {
+            $this->registrarReserva($datos);
+            echo "<script>window.location.href = '" . APP_URL . "admin';</script>";
+            exit();
+        } catch (\Throwable $e) {
+            return ["tipo" => "error", "texto" => "Error: " . $e->getMessage()];
+        }
     }
 
     public function cambiarEstadoReservaC() {

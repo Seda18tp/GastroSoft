@@ -14,7 +14,7 @@ class adminModel extends mainModel {
         // Mesas ocupadas o en precuenta
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta')";
+                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta','reservada')";
         $mesas = $this->ejecutarConsulta($sqlMesas)->fetch()['mesas_ocupadas'] ?? 0;
 
         // Total pedidos hoy
@@ -23,7 +23,6 @@ class adminModel extends mainModel {
                        WHERE fecha::date = CURRENT_DATE";
         $pedidos = $this->ejecutarConsulta($sqlPedidos)->fetch()['total_pedidos'] ?? 0;
 
-        // Alertas de stock con casteo explícito a numeric para evitar comparaciones erróneas
         $sqlStock = "SELECT COUNT(*) AS alertaStock 
                      FROM inventario 
                      WHERE stock_actual::numeric <= stock_minimo::numeric";
@@ -310,12 +309,9 @@ class adminModel extends mainModel {
                     :fecha_reserva::date, 
                     :hora_inicio::time, 
                     :hora_fin::time, 
-                    :estado::estado_reserva, 
+                    :estado, 
                     :observaciones
                 )";
-
-        // Convertir a minúsculas para respetar el enum de PostgreSQL
-        $estadoLimpio = strtolower(trim($datos['estado'] ?? 'confirmada'));
 
         return $this->ejecutarConsulta($sql, [
             ':mesa_id'           => (int)$datos['mesa_id'],
@@ -325,19 +321,15 @@ class adminModel extends mainModel {
             ':fecha_reserva'     => $datos['fecha_reserva'],
             ':hora_inicio'       => $datos['hora_inicio'],
             ':hora_fin'          => $datos['hora_fin'],
-            ':estado'            => $estadoLimpio,
+            ':estado'            => $datos['estado'] ?? 'Confirmada',
             ':observaciones'     => $datos['observaciones']
         ]);
     }
 
     public function cambiarEstadoReserva($reserva_id, $nuevo_estado) {
-        $sql = "UPDATE reserva SET estado = :estado::estado_reserva WHERE id = :id";
-        
-        // Convertir a minúsculas
-        $estadoLimpio = strtolower(trim($nuevo_estado));
-
+        $sql = "UPDATE reserva SET estado = :estado WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
-            ':estado' => $estadoLimpio,
+            ':estado' => trim($nuevo_estado),
             ':id'     => (int)$reserva_id
         ]);
     }
