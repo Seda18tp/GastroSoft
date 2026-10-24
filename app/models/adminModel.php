@@ -6,18 +6,18 @@ class adminModel extends mainModel {
     public function obtenerMetricas() {
         $sqlVentas = "SELECT COALESCE(SUM(total), 0) AS total_ventas 
                       FROM pedido 
-                      WHERE DATE(fecha) = CURDATE() 
-                        AND estado IN ('Pagado')";
+                      WHERE fecha::date = CURRENT_DATE 
+                        AND estado = 'Pagado'";
         $ventas = $this->ejecutarConsulta($sqlVentas)->fetch()['total_ventas'] ?? 0;
 
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE estado = 'Ocupada' || estado = 'Precuenta'";
+                     WHERE estado = 'Ocupada' OR estado = 'Precuenta'";
         $mesas = $this->ejecutarConsulta($sqlMesas)->fetch()['mesas_ocupadas'] ?? 0;
 
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 
                        FROM pedido 
-                       WHERE DATE(fecha) = CURDATE()";
+                       WHERE fecha::date = CURRENT_DATE";
         $pedidos = $this->ejecutarConsulta($sqlPedidos)->fetch()['total_pedidos'] ?? 0;
 
         $sqlStock = "SELECT COUNT(*) AS alertaStock 
@@ -47,7 +47,7 @@ class adminModel extends mainModel {
                     m.numero_mesa
                 FROM reserva r
                 INNER JOIN mesa m ON r.mesa_id = m.id
-                WHERE r.fecha_reserva = CURDATE()
+                WHERE r.fecha_reserva = CURRENT_DATE
                 ORDER BY r.hora_inicio ASC";
 
         return $this->ejecutarConsulta($sql);
@@ -58,7 +58,7 @@ class adminModel extends mainModel {
                     metodo_pago, 
                     SUM(monto) AS total_monto
                 FROM pago
-                WHERE DATE(fecha) = CURDATE()
+                WHERE fecha::date = CURRENT_DATE
                 GROUP BY metodo_pago
                 ORDER BY total_monto DESC";
 
@@ -73,8 +73,8 @@ class adminModel extends mainModel {
                 FROM detalle_pedido dp
                 INNER JOIN producto prod ON dp.producto_id = prod.id
                 INNER JOIN pedido p ON dp.pedido_id = p.id
-                WHERE DATE(p.fecha) = CURDATE()
-                  AND LOWER(TRIM(p.estado)) IN ('pagado', 'entregado', 'listo')
+                WHERE p.fecha::date = CURRENT_DATE
+                  AND LOWER(TRIM(p.estado::text)) IN ('pagado', 'entregado', 'listo')
                 GROUP BY prod.id, prod.nombre
                 ORDER BY total_vendido DESC
                 LIMIT $limite";
@@ -107,7 +107,7 @@ class adminModel extends mainModel {
     }
 
     public function cambiarEstadoProducto($producto_id, $nuevo_estado) {
-        $sql = "UPDATE producto SET estado = :estado WHERE id = :id";
+        $sql = "UPDATE producto SET estado = :estado::estado_generico WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
             ':estado' => $nuevo_estado,
             ':id'     => (int)$producto_id
@@ -124,7 +124,7 @@ class adminModel extends mainModel {
 
     public function registrarProducto($datos) {
         $sql = "INSERT INTO producto (categoria_id, nombre, descripcion, precio_venta, img_url, estado) 
-                VALUES (:categoria_id, :nombre, :descripcion, :precio_venta, :img_url, :estado)";
+                VALUES (:categoria_id, :nombre, :descripcion, :precio_venta, :img_url, :estado::estado_generico)";
         return $this->ejecutarConsulta($sql, [
             ':categoria_id' => $datos['categoria_id'],
             ':nombre'       => $datos['nombre'],
@@ -142,7 +142,7 @@ class adminModel extends mainModel {
                     descripcion  = :descripcion, 
                     precio_venta = :precio, 
                     img_url      = :imagen, 
-                    estado       = :estado 
+                    estado       = :estado::estado_generico 
                 WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
             ':categoria_id' => $datos['categoria_id'],
@@ -176,7 +176,7 @@ class adminModel extends mainModel {
                 SET stock_actual   = :stock_actual, 
                     stock_minimo   = :stock_minimo, 
                     und_medida     = :und_medida, 
-                    actualizado_en = NOW() 
+                    actualizado_en = CURRENT_TIMESTAMP 
                 WHERE id = :id";
 
         return $this->ejecutarConsulta($sql, [
@@ -208,20 +208,20 @@ class adminModel extends mainModel {
 
     public function registrarUsuario($datos) {
         $sql = "INSERT INTO usuario (rol_id, nombre_completo, email, password, estado) 
-                VALUES (:rol_id, :nombre, :email, :password, :estado)";
+                VALUES (:rol_id, :nombre, :email, :password, :estado::estado_generico)";
 
         return $this->ejecutarConsulta($sql, [
-            ':rol_id'   => $datos['rol_id']   ?? $datos[':rol_id']   ?? 1,
-            ':nombre'   => $datos['nombre']   ?? $datos['nombre_completo'] ?? '',
-            ':email'    => $datos['email']    ?? '',
+            ':rol_id'   => $datos['rol_id'] ?? 1,
+            ':nombre'   => $datos['nombre'] ?? '',
+            ':email'    => $datos['email'] ?? '',
             ':password' => $datos['password'] ?? '',
-            ':estado'   => $datos['estado']   ?? 'Activo'
+            ':estado'   => $datos['estado'] ?? 'Activo'
         ]);
     }
 
     public function actualizarUsuario($datos) {
-        $nombre = $datos['nombre'] ?? $datos['nombre_completo'] ?? '';
-        $email  = $datos['email']  ?? '';
+        $nombre = $datos['nombre'] ?? '';
+        $email  = $datos['email'] ?? '';
         $rol_id = $datos['rol_id'] ?? 1;
         $estado = $datos['estado'] ?? 'Activo';
         $id     = (int)($datos['id'] ?? 0);
@@ -233,7 +233,7 @@ class adminModel extends mainModel {
                         email           = :email, 
                         password        = :password, 
                         rol_id          = :rol_id, 
-                        estado          = :estado 
+                        estado          = :estado::estado_generico 
                     WHERE id = :id";
             return $this->ejecutarConsulta($sql, [
                 ':nombre'   => $nombre,
@@ -249,7 +249,7 @@ class adminModel extends mainModel {
                 SET nombre_completo = :nombre, 
                     email           = :email, 
                     rol_id          = :rol_id, 
-                    estado          = :estado 
+                    estado          = :estado::estado_generico 
                 WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
             ':nombre' => $nombre,
@@ -261,7 +261,7 @@ class adminModel extends mainModel {
     }
 
     public function cambiarEstadoUsuario($id, $nuevoEstado) {
-        $sql = "UPDATE usuario SET estado = :estado WHERE id = :id";
+        $sql = "UPDATE usuario SET estado = :estado::estado_generico WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
             ':estado' => $nuevoEstado,
             ':id'     => (int)$id
@@ -303,10 +303,10 @@ class adminModel extends mainModel {
                     :nombre_cliente, 
                     :telefono, 
                     :cantidad_personas, 
-                    :fecha_reserva, 
-                    :hora_inicio, 
-                    :hora_fin, 
-                    :estado, 
+                    :fecha_reserva::date, 
+                    :hora_inicio::time, 
+                    :hora_fin::time, 
+                    :estado::estado_reserva, 
                     :observaciones
                 )";
 
@@ -324,11 +324,10 @@ class adminModel extends mainModel {
     }
 
     public function cambiarEstadoReserva($reserva_id, $nuevo_estado) {
-        $sql = "UPDATE reserva SET estado = :estado WHERE id = :id";
+        $sql = "UPDATE reserva SET estado = :estado::estado_reserva WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
             ':estado' => $nuevo_estado,
             ':id'     => (int)$reserva_id
         ]);
     }
 }
-?>

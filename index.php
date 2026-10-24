@@ -35,11 +35,6 @@ use app\controllers\viewsController;
 
 $viewsController = new viewsController();
 $vista = $viewsController->obtenerVistas($url[0]);
-
-if ($vista == "login" || $vista == "404") {
-    require_once __DIR__ . "/app/views/content/" . $vista . "-view.php";
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -47,6 +42,11 @@ if ($vista == "login" || $vista == "404") {
     <?php require_once __DIR__ . "/app/views/inc/head.php"; ?>
 </head>
 <body class="bg-[#0D1322] text-slate-100 min-h-screen flex flex-col font-sans">
+    <?php
+        if ($vista == "login" || $vista == "404") {
+            require_once __DIR__ . "/app/views/content/" . $vista . "-view.php";
+        } else {
+    ?>
     <main class="page-container flex-1 flex flex-col">
 
         <?php require_once __DIR__ . "/app/views/inc/navbar.php"; ?>     
@@ -60,6 +60,9 @@ if ($vista == "login" || $vista == "404") {
         <?php require_once __DIR__ . "/app/views/inc/script.php"; ?>
 
     </main>
+    <?php
+        }
+    ?>
 </body>
 </html>
 <?php

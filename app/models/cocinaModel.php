@@ -20,14 +20,14 @@ class cocinaModel extends mainModel {
                 INNER JOIN usuario u ON p.usuario_id = u.id
                 LEFT JOIN detalle_pedido dp ON p.id = dp.pedido_id
                 LEFT JOIN producto prod ON dp.producto_id = prod.id
-                WHERE LOWER(TRIM(p.estado)) IN ('Pendiente','En Preparacion')
+                WHERE LOWER(TRIM(p.estado::text)) IN ('pendiente','en preparacion')
                 ORDER BY p.fecha ASC";
 
         return $this->ejecutarConsulta($sql);
     }
 
     public function actualizarEstadoPedido($pedido_id, $nuevo_estado) {
-        $sql = "UPDATE pedido SET estado = :estado WHERE id = :id";
+        $sql = "UPDATE pedido SET estado = :estado::estado_pedido WHERE id = :id";
         return $this->ejecutarConsulta($sql, [
             ':estado' => $nuevo_estado,
             ':id'     => $pedido_id
@@ -36,7 +36,7 @@ class cocinaModel extends mainModel {
 
     public function crearNotificacionMesero($pedido_id, $mesero_id, $mensaje) {
         $sql = "INSERT INTO notificacion (pedido_id, usuario_id, tipo, mensaje, fecha) 
-                VALUES (:pedido_id, :usuario_id, 'Pedido_listo', :mensaje, NOW())";
+                VALUES (:pedido_id, :usuario_id, 'pedido_listo', :mensaje, CURRENT_TIMESTAMP)";
         return $this->ejecutarConsulta($sql, [
             ':pedido_id'   => $pedido_id,
             ':usuario_id'  => $mesero_id,
@@ -49,7 +49,7 @@ class cocinaModel extends mainModel {
                     id, 
                     mensaje, 
                     tipo, 
-                    DATE_FORMAT(fecha, '%h:%i %p') AS hora 
+                    TO_CHAR(fecha, 'HH12:MI AM') AS hora 
                 FROM notificacion 
                 WHERE tipo = 'nuevo_pedido' 
                 ORDER BY fecha DESC 
@@ -70,7 +70,7 @@ class cocinaModel extends mainModel {
                 FROM pedido p
                 INNER JOIN mesa m ON p.mesa_id = m.id
                 INNER JOIN usuario u ON p.usuario_id = u.id
-                WHERE p.estado IN ('Listo', 'Pagado', 'cancelado')
+                WHERE LOWER(p.estado::text) IN ('listo', 'pagado', 'cancelado')
                 ORDER BY p.fecha DESC 
                 LIMIT $limite";
 
@@ -86,4 +86,3 @@ class cocinaModel extends mainModel {
         return $this->ejecutarConsulta($sql);
     }
 }
-?>

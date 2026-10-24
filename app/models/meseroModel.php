@@ -13,8 +13,8 @@ class meseroModel extends mainModel {
                     COALESCE(p.total, 0) AS subtotal_pedido,
                     p.estado AS pedido_estado
                 FROM mesa m
-                LEFT JOIN pedido p ON p.mesa_id = m.id AND LOWER(p.estado) NOT IN ('pagado', 'cancelado')
-                ORDER BY CAST(m.numero_mesa AS UNSIGNED) ASC, m.numero_mesa ASC";
+                LEFT JOIN pedido p ON p.mesa_id = m.id AND LOWER(p.estado::text) NOT IN ('pagado', 'cancelado')
+                ORDER BY CAST(m.numero_mesa AS INTEGER) ASC, m.numero_mesa ASC";
 
         return $this->ejecutarConsulta($sql);
     }
@@ -44,7 +44,7 @@ class meseroModel extends mainModel {
                     id, 
                     mensaje, 
                     tipo, 
-                    DATE_FORMAT(fecha, '%h:%i %p') AS hora 
+                    TO_CHAR(fecha, 'HH12:MI AM') AS hora 
                 FROM notificacion 
                 WHERE tipo = 'pedido_listo' 
                 ORDER BY fecha DESC 
@@ -56,7 +56,7 @@ class meseroModel extends mainModel {
     public function listarProductosDisponibles() {
         $sql = "SELECT id, nombre, precio_venta, categoria_id, img_url 
                 FROM producto 
-                WHERE estado = 'Activo' OR disponible = 1 
+                WHERE estado = 'Activo' OR disponible = true 
                 ORDER BY nombre ASC";
         return $this->ejecutarConsulta($sql);
     }
@@ -66,7 +66,7 @@ class meseroModel extends mainModel {
 
         $sqlCheck = "SELECT id, estado FROM pedido 
                      WHERE mesa_id = :mesa_id 
-                       AND LOWER(estado) NOT IN ('pagado', 'cancelado') 
+                       AND LOWER(estado::text) NOT IN ('pagado', 'cancelado') 
                      LIMIT 1";
         $stmtCheck = $conexion->prepare($sqlCheck);
         $stmtCheck->execute([':mesa_id' => (int)$mesa_id]);
@@ -85,19 +85,15 @@ class meseroModel extends mainModel {
             $esAdicion = true;
         } else {
             $sqlNuevo = "INSERT INTO pedido (mesa_id, usuario_id, total, estado, fecha) 
-                         VALUES (:mesa_id, :usuario_id, 0.00, 'Pendiente', NOW())";
+                         VALUES (:mesa_id, :usuario_id, 0.00, 'Pendiente', CURRENT_TIMESTAMP) 
+                         RETURNING id";
             $stmtNuevo = $conexion->prepare($sqlNuevo);
             $stmtNuevo->execute([
                 ':mesa_id'    => (int)$mesa_id,
                 ':usuario_id' => (int)$usuario_id
             ]);
 
-            $pedido_id = (int)$conexion->lastInsertId();
-            if ($pedido_id === 0) {
-                $stmtLast = $conexion->prepare("SELECT id FROM pedido WHERE mesa_id = :mesa_id ORDER BY id DESC LIMIT 1");
-                $stmtLast->execute([':mesa_id' => (int)$mesa_id]);
-                $pedido_id = (int)($stmtLast->fetch(\PDO::FETCH_ASSOC)['id'] ?? 0);
-            }
+            $pedido_id = (int)($stmtNuevo->fetch(\PDO::FETCH_ASSOC)['id'] ?? 0);
 
             $stmtMesa = $conexion->prepare("UPDATE mesa SET estado = 'Ocupada' WHERE id = :mesa_id");
             $stmtMesa->execute([':mesa_id' => (int)$mesa_id]);
@@ -145,7 +141,7 @@ class meseroModel extends mainModel {
             : "Comanda enviada de la Mesa #" . $numMesa . " para preparación.";
 
         $sqlNoti = "INSERT INTO notificacion (pedido_id, usuario_id, tipo, mensaje, fecha) 
-                    VALUES (:pedido_id, :usuario_id, 'nuevo_pedido', :mensaje, NOW())";
+                    VALUES (:pedido_id, :usuario_id, 'nuevo_pedido', :mensaje, CURRENT_TIMESTAMP)";
         $stmtNoti = $conexion->prepare($sqlNoti);
         $stmtNoti->execute([
             ':pedido_id'   => $pedido_id,
