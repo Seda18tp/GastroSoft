@@ -14,8 +14,20 @@
 
         //conexion
         protected function conectar() {
-            $conexion = new PDO("mysql:host=".$this->server.";dbname=".$this->db.";charset=utf8mb4", $this->user, $this->pass);
-            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $servidor = getenv('DB_SERVER') ?: DB_SERVER;
+            $baseDatos = getenv('DB_NAME') ?: DB_NAME;
+            $usuario = getenv('DB_USER') ?: DB_USER;
+            $clave = getenv('DB_PASS') ?: DB_PASS;
+            $puerto = getenv('DB_PORT') ?: DB_PORT;
+
+            $dsn = "pgsql:host={$servidor};port={$puerto};dbname={$baseDatos};sslmode=require";
+
+            $conexion = new \PDO($dsn, $usuario, $clave, [
+                \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                \PDO::ATTR_EMULATE_PREPARES   => false
+            ]);
+
             return $conexion;
         }
 
