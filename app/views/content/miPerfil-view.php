@@ -22,9 +22,10 @@
     };
 
     $fotoSession = trim($_SESSION['foto_perfil'] ?? '');
-    $rutaFisica  = dirname(__DIR__, 2) . '/img/perfil/' . $fotoSession;
 
-    if (!empty($fotoSession) && file_exists($rutaFisica)) {
+    if (str_starts_with($fotoSession, 'data:image/')) {
+        $avatarImg = $fotoSession;
+    } elseif (!empty($fotoSession) && file_exists(dirname(__DIR__, 2) . '/img/perfil/' . $fotoSession)) {
         $avatarImg = APP_URL . 'app/img/perfil/' . $fotoSession . '?v=' . time();
     } else {
         $avatarImg = APP_URL . 'app/img/default.png';
