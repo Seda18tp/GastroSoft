@@ -310,9 +310,12 @@ class adminModel extends mainModel {
                     :fecha_reserva::date, 
                     :hora_inicio::time, 
                     :hora_fin::time, 
-                    'Confirmada', 
+                    :estado::estado_reserva, 
                     :observaciones
                 )";
+
+        // Convertir a minúsculas para respetar el enum de PostgreSQL
+        $estadoLimpio = strtolower(trim($datos['estado'] ?? 'confirmada'));
 
         return $this->ejecutarConsulta($sql, [
             ':mesa_id'           => (int)$datos['mesa_id'],
@@ -322,14 +325,19 @@ class adminModel extends mainModel {
             ':fecha_reserva'     => $datos['fecha_reserva'],
             ':hora_inicio'       => $datos['hora_inicio'],
             ':hora_fin'          => $datos['hora_fin'],
+            ':estado'            => $estadoLimpio,
             ':observaciones'     => $datos['observaciones']
         ]);
     }
 
     public function cambiarEstadoReserva($reserva_id, $nuevo_estado) {
         $sql = "UPDATE reserva SET estado = :estado::estado_reserva WHERE id = :id";
+        
+        // Convertir a minúsculas
+        $estadoLimpio = strtolower(trim($nuevo_estado));
+
         return $this->ejecutarConsulta($sql, [
-            ':estado' => $nuevo_estado,
+            ':estado' => $estadoLimpio,
             ':id'     => (int)$reserva_id
         ]);
     }

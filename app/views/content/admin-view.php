@@ -196,9 +196,9 @@ $reservas = $insAdmin->obtenerReservasDia();
 
       <div class="w-full sm:flex-1">
         <select name="nuevo_estado" id="form-reserva-estado" class="w-full bg-[#182338] border border-[#2E3F5C] rounded-xl px-3 py-2.5 text-white text-xs focus:outline-none focus:border-[#F59E0B]">
-          <option value="Confirmada">Confirmada</option>
+          <option value="confirmada">Confirmada</option>
           <option value="finalizada">Finalizada</option>
-          <option value="Cancelada">Cancelada</option>
+          <option value="cancelada">Cancelada</option>
         </select>
       </div>
 

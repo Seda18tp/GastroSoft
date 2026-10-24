@@ -241,7 +241,7 @@
     document.getElementById('det-horario').innerText = hInicio + ' a ' + hFin;
     
     document.getElementById('det-observaciones').innerText = res.observaciones ? res.observaciones : 'Sin observaciones especiales.';
-    document.getElementById('form-reserva-estado').value = res.estado;
+    document.getElementById('form-reserva-estado').value = (res.estado || '').toLowerCase();
 
     document.getElementById('modal-detalle-reserva').classList.remove('hidden');
     }

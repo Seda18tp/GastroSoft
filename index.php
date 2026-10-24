@@ -6,8 +6,8 @@ require_once __DIR__ . "/autoload.php";
 require_once __DIR__ . "/config/conexion.php";
 require_once __DIR__ . "/app/views/inc/session_start.php";
 
-// Manejo de cierre de sesión
-if (isset($_GET['cerrar_sesion'])) {
+// Cerrar sesión solo cuando el parámetro GET esté explícitamente seteado
+if (isset($_GET['cerrar_sesion']) && $_GET['cerrar_sesion'] === 'true') {
     $_SESSION = [];
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
@@ -26,17 +26,13 @@ if (isset($_GET['cerrar_sesion'])) {
     exit();
 }
 
-// 1. Obtener la ruta solicitada (Compatible con Local y Vercel)
+// Detección robusta de la ruta actual
 if (isset($_GET['views']) && !empty($_GET['views'])) {
     $ruta = $_GET['views'];
 } else {
-    // Si Vercel no reescribió $_GET['views'], leerlo directamente de REQUEST_URI
     $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
     $uri = trim($uri, '/');
-    
-    // Si corre en subcarpeta local (ej: /gastrosoft/mesero), remover el prefijo
     $uri = preg_replace('#^gastrosoft/?#i', '', $uri);
-    
     $ruta = !empty($uri) ? $uri : "login";
 }
 
@@ -46,6 +42,26 @@ use app\controllers\viewsController;
 
 $viewsController = new viewsController();
 $vista = $viewsController->obtenerVistas($url[0]);
+
+// Si el usuario no ha iniciado sesión y la vista no es pública, redirigir a login
+$vistasPublicas = ['login', '404'];
+if (!isset($_SESSION['id_usuario']) && !in_array($vista, $vistasPublicas)) {
+    header("Location: " . APP_URL . "login");
+    exit();
+}
+
+// Si ya tiene sesión activa y visita login, enviarlo a su rol
+if (isset($_SESSION['id_usuario']) && $vista === 'login') {
+    $rol = strtolower($_SESSION['rol'] ?? '');
+    $destino = match ($rol) {
+        'administrador', 'admin' => 'admin',
+        'cocinero'               => 'cocinero',
+        'cajero'                 => 'caja',
+        default                  => 'mesero'
+    };
+    header("Location: " . APP_URL . $destino);
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
