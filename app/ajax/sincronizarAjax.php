@@ -21,7 +21,8 @@ try {
                 (SELECT COUNT(*) FROM notificacion) AS total_notif,
                 (SELECT MAX(id) FROM detalle_pedido) AS ultimo_detalle,
                 (SELECT COUNT(*) FROM detalle_pedido) AS total_detalles,
-                (SELECT SUM(stock_actual::numeric) FROM inventario) AS balance_stock";
+                (SELECT SUM(stock_actual::numeric) FROM inventario) AS balance_stock,
+                (SELECT COUNT(*) FROM producto) AS total_productos";
 
     $stmt = $db->ejecutarConsulta($sql);
     $data = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : [];
@@ -39,3 +40,4 @@ try {
     ]);
 }
 exit();
+?>

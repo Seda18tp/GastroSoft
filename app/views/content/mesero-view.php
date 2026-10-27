@@ -224,16 +224,19 @@
 
       <!--productos-->
       <div class="flex-1 overflow-y-auto pr-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 mb-4" id="catalogo-productos-grid">
-        <?php foreach ($productos as $p): 
-            $fotoProducto = trim($p['img_url'] ?? '');
-            $rutaFisicaProd = dirname(__DIR__, 2) . '/img/productos/' . $fotoProducto;
+           <?php foreach ($productos as $p): 
+              $imgBd = trim($p['img_url'] ?? '');
 
-            if (!empty($fotoProducto) && file_exists($rutaFisicaProd)) {
-                $rutaImg = APP_URL . 'app/img/productos/' . $fotoProducto;
-            } else {
-                $rutaImg = APP_URL . 'app/img/default.png';
-            }
-        ?>
+              if (str_starts_with($imgBd, 'data:image/')) {
+                  $rutaImg = $imgBd;
+              } elseif (str_starts_with($imgBd, 'http://') || str_starts_with($imgBd, 'https://')) {
+                  $rutaImg = $imgBd;
+              } elseif (!empty($imgBd) && file_exists(dirname(__DIR__, 2) . '/img/productos/' . $imgBd)) {
+                  $rutaImg = APP_URL . 'app/img/productos/' . htmlspecialchars($imgBd);
+              } else {
+                  $rutaImg = APP_URL . 'app/img/default.png';
+              }
+          ?>
           <div onclick="seleccionarProductoCard(<?= $p['id'] ?>, '<?= htmlspecialchars(addslashes($p['nombre'])) ?>', <?= $p['precio_venta'] ?>, this)"
                data-nombre="<?= htmlspecialchars(strtolower($p['nombre'])) ?>"
                class="card-producto-item group bg-[#182338] border border-[#26354D] hover:border-[#10B981] rounded-2xl p-2.5 flex flex-col justify-between cursor-pointer transition transform hover:scale-[1.02]">

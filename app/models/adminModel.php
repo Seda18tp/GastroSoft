@@ -16,7 +16,7 @@ class adminModel extends mainModel {
                      WHERE LOWER(estado::text) IN ('ocupada', 'precuenta','reservada')";
         $stmtMesas = $this->ejecutarConsulta($sqlMesas);
         $mesas = (int)($stmtMesas->fetch()['mesas_ocupadas'] ?? 0);
-        
+
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 
                        FROM pedido 
                        WHERE fecha::date = CURRENT_DATE";
@@ -127,16 +127,33 @@ class adminModel extends mainModel {
     }
 
     public function registrarProducto($datos) {
+        $conexion = $this->conectar();
+        
         $sql = "INSERT INTO producto (categoria_id, nombre, descripcion, precio_venta, img_url, estado) 
-                VALUES (:categoria_id, :nombre, :descripcion, :precio_venta, :img_url, :estado::estado_generico)";
-        return $this->ejecutarConsulta($sql, [
-            ':categoria_id' => $datos['categoria_id'],
+                VALUES (:categoria_id, :nombre, :descripcion, :precio_venta, :img_url, :estado)
+                RETURNING id";
+                
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([
+            ':categoria_id' => (int)$datos['categoria_id'],
             ':nombre'       => $datos['nombre'],
             ':descripcion'  => $datos['descripcion'],
-            ':precio_venta' => $datos['precio_venta'],
+            ':precio_venta' => (float)$datos['precio_venta'],
             ':img_url'      => $datos['img_url'],
-            ':estado'       => $datos['estado']
+            ':estado'       => $datos['estado'] ?? 'Activo'
         ]);
+        
+        $nuevoProductoId = (int)$stmt->fetchColumn();
+
+        if ($nuevoProductoId > 0) {
+            $sqlInv = "INSERT INTO inventario (producto_id, stock_actual, stock_minimo, und_medida) 
+                       VALUES (:producto_id, 10.00, 5.00, 'unidad')
+                       ON CONFLICT (producto_id) DO NOTHING";
+            $stmtInv = $conexion->prepare($sqlInv);
+            $stmtInv->execute([':producto_id' => $nuevoProductoId]);
+        }
+
+        return $nuevoProductoId;
     }
 
     public function actualizarProducto($datos) {
