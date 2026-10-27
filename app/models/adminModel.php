@@ -16,7 +16,7 @@ class adminModel extends mainModel {
                      WHERE LOWER(estado::text) IN ('ocupada', 'precuenta','reservada')";
         $stmtMesas = $this->ejecutarConsulta($sqlMesas);
         $mesas = (int)($stmtMesas->fetch()['mesas_ocupadas'] ?? 0);
-+
+        
         $sqlPedidos = "SELECT COUNT(*) AS total_pedidos 
                        FROM pedido 
                        WHERE fecha::date = CURRENT_DATE";
