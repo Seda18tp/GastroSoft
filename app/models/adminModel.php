@@ -13,7 +13,7 @@ class adminModel extends mainModel {
 
         $sqlMesas = "SELECT COUNT(*) AS mesas_ocupadas 
                      FROM mesa 
-                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta',reservada')";
+                     WHERE LOWER(estado::text) IN ('ocupada', 'precuenta','reservada')";
         $stmtMesas = $this->ejecutarConsulta($sqlMesas);
         $mesas = (int)($stmtMesas->fetch()['mesas_ocupadas'] ?? 0);
 +
